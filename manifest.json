@@ -1,0 +1,24 @@
+{
+  "id": "plant-care",
+  "name": "Plant Care",
+  "version": "1.0.0",
+  "description": "Track watering, fertilizing, and any other care for your household plants. Color-coded urgency shows what needs attention. One tap to log it.",
+  "entrypoint": "index.html",
+  "runtime": "static",
+  "category": "family",
+  "tags": ["plants", "gardening", "watering", "care", "reminders"],
+  "data_access": {
+    "reads": ["family.members"],
+    "writes": []
+  },
+  "permissions": {
+    "default_audience": "everyone",
+    "requires_approval": false
+  },
+  "storage": "db",
+  "nav": { "label": "Plants", "icon": "🪴" },
+  "widget": { "label": "Plant Care", "size": "small" },
+  "resource_limits": {
+    "max_db_bytes": 52428800
+  }
+}

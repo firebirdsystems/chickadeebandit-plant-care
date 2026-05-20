@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plant Care</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           var(--hub-bg, #f9fafb);
+      --card:         var(--hub-surface, #ffffff);
+      --border:       var(--hub-border, #e5e7eb);
+      --border-mid:   var(--hub-border, #d1d5db);
+      --text:         var(--hub-text, #111827);
+      --muted:        var(--hub-text-muted, #6b7280);
+      --accent:       var(--hub-primary, #111827);
+      --accent-fg:    var(--hub-primary-fg, #ffffff);
+      --accent-hover: var(--hub-primary-hover, #374151);
+      --accent-light: #f3f4f6;
+      --radius:       var(--hub-radius, 0.5rem);
+      --shadow:       0 1px 3px rgba(0,0,0,.07);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; font-size: 15px; line-height: 1.5;
+    }
+    .app { max-width: 640px; margin: 0 auto; padding: 16px; }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; padding: 14px 18px;
+      background: var(--accent); border-radius: var(--radius); color: white;
+    }
+    header h1 { font-size: 1.2rem; font-weight: 700; }
+    header .sub { font-size: 0.8rem; opacity: .75; margin-top: 1px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 8px;
+      font-size: 0.875rem; font-weight: 600; cursor: pointer; border: none; transition: opacity .15s;
+    }
+    .btn:disabled { opacity: .5; cursor: default; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover:not(:disabled) { opacity: .88; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--text); color: var(--text); }
+    .btn-danger { background: #dc2626; color: white; }
+    .btn-danger:hover:not(:disabled) { opacity: .88; }
+    .btn-icon { background: rgba(255,255,255,.2); color: white; border: none; font-size: 1.2rem; padding: 6px 10px; border-radius: 8px; }
+    .btn-icon:hover { background: rgba(255,255,255,.3); }
+    .btn-sm { padding: 5px 12px; font-size: 0.8rem; }
+
+    .plant-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .plant-tab {
+      padding: 6px 14px; border-radius: 20px;
+      border: 1.5px solid var(--border); background: var(--card);
+      font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all .15s; color: var(--muted);
+    }
+    .plant-tab.active { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+
+    .activity-card {
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+      display: flex; flex-direction: column;
+    }
+    .card-body { padding: 14px 16px 10px; flex: 1; }
+    .card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .card-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; }
+    .card-name { font-weight: 700; font-size: 1rem; flex: 1; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--status-color, #6b7280); flex-shrink: 0; }
+    .card-label { font-size: 0.85rem; font-weight: 600; color: var(--status-color, var(--muted)); margin-bottom: 6px; }
+    .card-last-by {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 6px; font-size: 0.8rem; color: var(--muted);
+    }
+    .card-last-by .by-avatar {
+      width: 20px; height: 20px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.62rem; font-weight: 700; color: white; flex-shrink: 0;
+    }
+    .card-last-by strong { color: var(--text); font-weight: 600; }
+    .progress-track { height: 4px; background: var(--border); border-radius: 2px; margin: 8px 0 4px; overflow: hidden; }
+    .progress-fill {
+      height: 100%; border-radius: 2px;
+      background: var(--status-color, var(--muted));
+      width: calc(var(--status-pct, 0) * 100%);
+      transition: width .4s ease, background .4s ease;
+    }
+    .done-btn {
+      width: 100%; padding: 11px; border: none;
+      font-size: 0.9rem; font-weight: 700; color: white; cursor: pointer;
+      background: var(--status-color, #6b7280);
+      transition: opacity .15s, background .4s ease; letter-spacing: .02em;
+    }
+    .done-btn:active { opacity: .8; }
+    .done-btn:hover { opacity: .92; }
+
+    .tabs {
+      display: flex; gap: 4px; background: var(--border); border-radius: 10px; padding: 3px; margin-bottom: 14px;
+    }
+    .tab { flex: 1; padding: 7px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--muted); background: transparent; transition: all .15s; }
+    .tab.active { background: white; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: flex-end; justify-content: center; z-index: 100; }
+    @media (min-width: 480px) { .modal-backdrop { align-items: center; padding: 20px; } }
+    .modal { background: white; border-radius: var(--radius) var(--radius) 0 0; width: 100%; max-width: 520px; padding: 22px; max-height: 92vh; overflow-y: auto; }
+    @media (min-width: 480px) { .modal { border-radius: var(--radius); } }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .04em; }
+    .form-group input[type="text"], .form-group input[type="number"], .form-group select {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 12px;
+      font-size: 0.95rem; outline: none; transition: border-color .15s; background: white; font-family: inherit;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+    .muted-label { font-weight: 400; text-transform: none; color: var(--muted); }
+
+    .emoji-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+    .emoji-btn { width: 38px; height: 38px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--bg); font-size: 1.2rem; cursor: pointer; transition: all .12s; display: flex; align-items: center; justify-content: center; }
+    .emoji-btn:hover { border-color: var(--accent); background: var(--accent-light); }
+    .emoji-btn.selected { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 0 2px var(--accent); }
+
+    .modal-actions { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+    .modal-actions .btn { flex: 1; justify-content: center; min-width: 90px; }
+
+    .settings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .settings-header h3 { font-size: 1.1rem; font-weight: 700; }
+    .settings-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row .info { flex: 1; font-size: 0.88rem; }
+    .settings-row .sched-meta { font-size: 0.78rem; color: var(--muted); }
+
+    .empty { text-align: center; padding: 36px 16px; color: var(--muted); font-size: 0.9rem; }
+    .empty-sm { font-size: 0.85rem; color: var(--muted); padding: 8px 0; }
+    .loading { text-align: center; padding: 40px; color: var(--muted); }
+    .muted { color: var(--muted); }
+  </style>
+  <base href="/run/plant-care/" />
+</head>
+<body>
+<div class="app">
+  <div id="root"><div class="loading">Loading…</div></div>
+</div>
+<script type="module">
+import { memberColor, initial, esc, isAdult } from "/hub-sdk.js";
+
+const CONTEXT = window.__CONTEXT_URL ?? "";
+const DB      = window.__DB_URL      ?? "";
+const ME      = window.__CURRENT_MEMBER ?? null;
+
+let members        = [];
+let plants         = [];
+let activities     = [];
+let lastLogs       = {};
+let selectedId     = null;
+let settingsTab    = "activities";
+let refreshTimer   = null;
+
+async function db(sql, params = []) {
+  if (!DB) return { rows: [] };
+  const res = await fetch(DB, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sql, params }) });
+  return res.json();
+}
+
+async function initDb() {
+  await db(`CREATE TABLE IF NOT EXISTS plants (id TEXT PRIMARY KEY, name TEXT NOT NULL, type TEXT NOT NULL DEFAULT '', emoji TEXT NOT NULL DEFAULT '🪴', location TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL)`);
+  await db(`CREATE TABLE IF NOT EXISTS activities (id TEXT PRIMARY KEY, plant_id TEXT NOT NULL, name TEXT NOT NULL, icon TEXT NOT NULL DEFAULT '💧', interval_days REAL NOT NULL DEFAULT 7, sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL)`);
+  await db(`CREATE TABLE IF NOT EXISTS logs (id TEXT PRIMARY KEY, activity_id TEXT NOT NULL, plant_id TEXT NOT NULL, done_by TEXT NOT NULL, done_at TEXT NOT NULL)`);
+}
+
+async function loadMembers() {
+  if (!CONTEXT) { members = [{ id: "demo-1", name: "Alex", role: "adult" }, { id: "demo-2", name: "Jordan", role: "child" }]; return; }
+  try { const res = await fetch(`${CONTEXT}?keys=family.members`); members = ((await res.json())["family.members"]) ?? []; } catch { members = []; }
+}
+async function loadPlants() { const { rows } = await db(`SELECT * FROM plants ORDER BY created_at`); plants = rows ?? []; }
+async function loadActivities() {
+  if (!selectedId) { activities = []; return; }
+  const { rows } = await db(`SELECT * FROM activities WHERE plant_id = ? ORDER BY sort_order, created_at`, [selectedId]);
+  activities = rows ?? [];
+}
+async function loadLastLogs() {
+  lastLogs = {};
+  if (!activities.length) return;
+  const ids = activities.map(a => a.id);
+  const ph  = ids.map(() => "?").join(",");
+  const { rows } = await db(`SELECT l.* FROM logs l INNER JOIN (SELECT activity_id, MAX(done_at) AS mx FROM logs WHERE activity_id IN (${ph}) GROUP BY activity_id) m ON l.activity_id = m.activity_id AND l.done_at = m.mx`, ids);
+  for (const r of rows ?? []) lastLogs[r.activity_id] = r;
+}
+
+// ─── Status ───────────────────────────────────────────────────────────────
+function formatDuration(totalDays) {
+  const d = Math.abs(totalDays);
+  if (d < 1/24) return `${Math.round(d * 24 * 60)}m`;
+  if (d < 1)    return `${Math.round(d * 24)}h`;
+  if (d < 7)    return `${Math.round(d)}d`;
+  if (d < 30)   return `${Math.round(d / 7)}w`;
+  return `${Math.round(d / 30)}mo`;
+}
+
+function activityStatus(activity) {
+  const log = lastLogs[activity.id];
+  const now = new Date();
+  const days = activity.interval_days ?? 7;
+
+  if (!log) return { pct: 2, label: "Never done", lastBy: null };
+
+  const lastDone  = new Date(log.done_at);
+  const elapsedD  = (now - lastDone) / 86400000;
+  const pct       = elapsedD / days;
+  const nextDue   = new Date(lastDone.getTime() + days * 86400000);
+  const diffDays  = (nextDue - now) / 86400000;
+  const label     = pct >= 1 ? `Overdue by ${formatDuration(-diffDays)}` : `Due in ${formatDuration(diffDays)}`;
+  const agoD      = (now - lastDone) / 86400000;
+  const member    = members.find(m => m.id === log.done_by) ?? null;
+  return { pct, label, lastBy: { member, agoD } };
+}
+
+function statusColor(pct) {
+  const c = Math.min(1, Math.max(0, pct));
+  function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
+  let r, g, b;
+  if (c < 0.5) { const t = c / 0.5; [r,g,b] = [lerp(22,217,t), lerp(163,119,t), lerp(74,6,t)]; }
+  else         { const t = (c-0.5)/0.5; [r,g,b] = [lerp(217,220,t), lerp(119,38,t), lerp(6,38,t)]; }
+  return `rgb(${r},${g},${b})`;
+}
+
+// ─── Actions ──────────────────────────────────────────────────────────────
+async function markDone(activityId) {
+  if (!ME) return;
+  const id  = crypto.randomUUID();
+  const now = new Date().toISOString();
+  await db(`INSERT INTO logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, ?)`, [id, activityId, selectedId, ME.id, now]);
+  await db(`DELETE FROM logs WHERE activity_id = ? AND id != ?`, [activityId, id]);
+  lastLogs[activityId] = { id, activity_id: activityId, plant_id: selectedId, done_by: ME.id, done_at: now };
+  renderMain();
+}
+
+async function savePlant(fields, id = null) {
+  const now = new Date().toISOString();
+  if (id) {
+    await db(`UPDATE plants SET name = ?, type = ?, emoji = ?, location = ? WHERE id = ?`, [fields.name, fields.type, fields.emoji, fields.location, id]);
+    plants = plants.map(p => p.id === id ? { ...p, ...fields } : p);
+  } else {
+    const newId = crypto.randomUUID();
+    await db(`INSERT INTO plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, ?)`, [newId, fields.name, fields.type, fields.emoji, fields.location, now]);
+    plants = [...plants, { id: newId, ...fields, created_at: now }];
+    if (!selectedId) selectedId = newId;
+    // Seed default activities
+    await db(`INSERT INTO activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, 'Watering', '💧', 7, 0, ?)`, [crypto.randomUUID(), newId, now]);
+    await db(`INSERT INTO activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, 'Fertilizing', '🧪', 30, 1, ?)`, [crypto.randomUUID(), newId, now]);
+    if (selectedId === newId) await loadActivities();
+  }
+}
+
+async function deletePlant(id) {
+  if (!confirm("Delete this plant and all its care data?")) return false;
+  await db(`DELETE FROM plants WHERE id = ?`, [id]);
+  await db(`DELETE FROM activities WHERE plant_id = ?`, [id]);
+  await db(`DELETE FROM logs WHERE plant_id = ?`, [id]);
+  plants = plants.filter(p => p.id !== id);
+  if (selectedId === id) { selectedId = plants[0]?.id ?? null; activities = []; lastLogs = {}; if (selectedId) { await loadActivities(); await loadLastLogs(); } }
+  return true;
+}
+
+async function saveActivity(fields, id = null) {
+  const now = new Date().toISOString();
+  if (id) {
+    await db(`UPDATE activities SET name = ?, icon = ?, interval_days = ? WHERE id = ?`, [fields.name, fields.icon, fields.interval_days, id]);
+    activities = activities.map(a => a.id === id ? { ...a, ...fields } : a);
+  } else {
+    const newId = crypto.randomUUID();
+    await db(`INSERT INTO activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`, [newId, selectedId, fields.name, fields.icon, fields.interval_days, activities.length, now]);
+    activities = [...activities, { id: newId, plant_id: selectedId, ...fields }];
+  }
+}
+
+async function deleteActivity(id) {
+  if (!confirm("Delete this activity?")) return false;
+  await db(`DELETE FROM activities WHERE id = ?`, [id]);
+  await db(`DELETE FROM logs WHERE activity_id = ?`, [id]);
+  activities = activities.filter(a => a.id !== id);
+  delete lastLogs[id];
+  return true;
+}
+
+// ─── Modal ────────────────────────────────────────────────────────────────
+let modalEl = null;
+function openModal(html) {
+  closeModal();
+  modalEl = document.createElement("div");
+  modalEl.className = "modal-backdrop";
+  modalEl.innerHTML = `<div class="modal">${html}</div>`;
+  modalEl.addEventListener("click", e => { if (e.target === modalEl) closeModal(); });
+  document.body.appendChild(modalEl);
+}
+function closeModal() { modalEl?.remove(); modalEl = null; }
+
+// ─── Render main ──────────────────────────────────────────────────────────
+function renderCard(activity) {
+  const { pct, label, lastBy } = activityStatus(activity);
+  const color = statusColor(pct);
+  const pctC  = Math.min(1, pct);
+  let lastByHtml = "";
+  if (lastBy) {
+    const name = lastBy.member?.name ?? "Someone";
+    const col  = memberColor(lastBy.member?.id ?? "", members);
+    lastByHtml = `<div class="card-last-by"><span class="by-avatar" style="background:${col}">${initial(name)}</span><span><strong>${esc(name)}</strong> · ${formatDuration(lastBy.agoD)} ago</span></div>`;
+  } else {
+    lastByHtml = `<div class="card-last-by" style="font-style:italic;color:var(--muted)">Never done</div>`;
+  }
+  return `
+    <div class="activity-card" style="--status-color:${color};--status-pct:${pctC.toFixed(3)}">
+      <div class="card-body">
+        <div class="card-top"><span class="card-icon">${activity.icon}</span><span class="card-name">${esc(activity.name)}</span><span class="status-dot"></span></div>
+        <div class="card-label">${label}</div>
+        ${lastByHtml}
+        <div class="progress-track"><div class="progress-fill"></div></div>
+      </div>
+      <button class="done-btn" onclick="markDone('${activity.id}')">✓ Done</button>
+    </div>`;
+}
+
+function renderMain() {
+  const plant     = plants.find(p => p.id === selectedId);
+  const meIsAdmin = isAdult(ME);
+  const tabsHtml  = plants.length > 1
+    ? `<div class="plant-tabs">${plants.map(p => `<button class="plant-tab ${p.id === selectedId ? "active" : ""}" onclick="selectPlant('${p.id}')">${p.emoji} ${esc(p.name)}</button>`).join("")}</div>` : "";
+  let body = "";
+  if (plants.length === 0) {
+    body = meIsAdmin ? `<div class="empty">No plants yet. Tap ⚙️ to add your first plant.</div>` : `<div class="empty">No plants configured yet.</div>`;
+  } else if (activities.length === 0) {
+    body = meIsAdmin ? `<div class="empty">No activities for ${esc(plant?.name ?? "this plant")}. Tap ⚙️ to add some.</div>` : `<div class="empty">No activities configured yet.</div>`;
+  } else {
+    body = `<div class="card-grid">${activities.map(renderCard).join("")}</div>`;
+  }
+  document.getElementById("root").innerHTML = `
+    <header>
+      <div><h1>${plant ? `${plant.emoji} ${esc(plant.name)}` : "🪴 Plant Care"}</h1><div class="sub">${plant?.type ? esc(plant.type) : "Care tracker"}${plant?.location ? ` · ${esc(plant.location)}` : ""}</div></div>
+      ${meIsAdmin ? `<button class="btn btn-icon" onclick="openSettings()" title="Settings">⚙️</button>` : ""}
+    </header>
+    ${tabsHtml}${body}`;
+}
+
+// ─── Settings ─────────────────────────────────────────────────────────────
+function renderSettingsModal() {
+  const tab   = settingsTab;
+  const plant = plants.find(p => p.id === selectedId);
+  const petsHtml = `
+    ${plants.map(p => `<div class="settings-row"><div class="info"><strong>${p.emoji} ${esc(p.name)}</strong>${p.type ? ` <span class="muted">(${esc(p.type)})</span>` : ""}${p.location ? ` <span class="muted">· ${esc(p.location)}</span>` : ""}</div><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openPlantForm('${p.id}')">Edit</button><button class="btn btn-danger btn-sm" onclick="doDelPlant('${p.id}')">Delete</button></div></div>`).join("") || `<div class="empty-sm">No plants yet.</div>`}
+    <div style="margin-top:12px"><button class="btn btn-primary btn-sm" onclick="openPlantForm()">+ Add Plant</button></div>`;
+  const actsHtml = !selectedId ? `<div class="empty-sm">Select a plant first.</div>` : `
+    ${activities.map(a => `<div class="settings-row"><div class="info"><strong>${a.icon} ${esc(a.name)}</strong><div class="sched-meta">Every ${a.interval_days} day${a.interval_days !== 1 ? "s" : ""}</div></div><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openActForm('${a.id}')">Edit</button><button class="btn btn-danger btn-sm" onclick="doDelAct('${a.id}')">Delete</button></div></div>`).join("") || `<div class="empty-sm">No activities for ${esc(plant?.name ?? "this plant")} yet.</div>`}
+    <div style="margin-top:12px"><button class="btn btn-primary btn-sm" onclick="openActForm()">+ Add Activity</button></div>`;
+  openModal(`
+    <div class="settings-header"><h3>⚙️ Settings</h3><button class="btn btn-ghost btn-sm" onclick="closeModal()">Done</button></div>
+    <div class="tabs"><button class="tab ${tab === "plants" ? "active" : ""}" onclick="switchTab('plants')">Plants</button><button class="tab ${tab === "activities" ? "active" : ""}" onclick="switchTab('activities')">Activities${plant ? ` — ${plant.emoji} ${esc(plant.name)}` : ""}</button></div>
+    <div>${tab === "plants" ? petsHtml : actsHtml}</div>`);
+}
+
+window.switchTab    = t => { settingsTab = t; renderSettingsModal(); };
+window.doDelPlant   = async id => { if (await deletePlant(id)) { renderSettingsModal(); renderMain(); } };
+window.doDelAct     = async id => { if (await deleteActivity(id)) { renderSettingsModal(); renderMain(); } };
+window.openSettings = ()  => { settingsTab = "activities"; renderSettingsModal(); };
+
+// ─── Plant form ───────────────────────────────────────────────────────────
+const PLANT_EMOJIS = ["🪴","🌵","🌿","🌱","🌺","🌸","🌻","🌹","🌴","🎋","🍀","🌾","🌳","🌲","🪷","🎍"];
+function openPlantForm(id = null) {
+  const p = id ? plants.find(x => x.id === id) : null;
+  const sel = p?.emoji ?? "🪴";
+  const eg = PLANT_EMOJIS.map(e => `<button type="button" class="emoji-btn ${sel === e ? "selected" : ""}" onclick="pickPlantEmoji(this,'${e}')">${e}</button>`).join("");
+  openModal(`
+    <h3 style="margin-bottom:16px">${p ? "Edit Plant" : "Add Plant"}</h3>
+    <input type="hidden" id="pf-emoji" value="${sel}" />
+    <div class="form-group"><label>Icon</label><div class="emoji-grid">${eg}</div></div>
+    <div class="form-group"><label>Name</label><input id="pf-name" type="text" value="${esc(p?.name ?? "")}" placeholder="Monstera, Snake Plant…" autofocus /></div>
+    <div class="form-group"><label>Type <span class="muted-label">(optional)</span></label><input id="pf-type" type="text" value="${esc(p?.type ?? "")}" placeholder="Succulent, Tropical…" /></div>
+    <div class="form-group"><label>Location <span class="muted-label">(optional)</span></label><input id="pf-loc" type="text" value="${esc(p?.location ?? "")}" placeholder="Living room, Bedroom…" /></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="backToSettings()">Back</button><button class="btn btn-primary" onclick="submitPlant('${id ?? ""}')">${p ? "Save" : "Add Plant"}</button></div>`);
+}
+window.pickPlantEmoji = (btn, e) => { document.getElementById("pf-emoji").value = e; btn.closest(".emoji-grid").querySelectorAll(".emoji-btn").forEach(b => b.classList.remove("selected")); btn.classList.add("selected"); };
+window.submitPlant = async id => {
+  const name = document.getElementById("pf-name").value.trim();
+  if (!name) { document.getElementById("pf-name").focus(); return; }
+  await savePlant({ name, type: document.getElementById("pf-type").value.trim(), emoji: document.getElementById("pf-emoji").value, location: document.getElementById("pf-loc").value.trim() }, id || null);
+  renderSettingsModal(); renderMain();
+};
+
+// ─── Activity form ────────────────────────────────────────────────────────
+const ACT_ICONS = ["💧","🧪","✂️","🪴","🌱","☀️","💦","🔄","🌡️","🧹","🪣","🫙"];
+function openActForm(id = null) {
+  const a   = id ? activities.find(x => x.id === id) : null;
+  const sel = a?.icon ?? "💧";
+  const ig  = ACT_ICONS.map(e => `<button type="button" class="emoji-btn ${sel === e ? "selected" : ""}" onclick="pickActIcon(this,'${e}')">${e}</button>`).join("");
+  openModal(`
+    <h3 style="margin-bottom:16px">${a ? "Edit Activity" : "Add Activity"}</h3>
+    <input type="hidden" id="af-icon" value="${sel}" />
+    <div class="form-group"><label>Icon</label><div class="emoji-grid">${ig}</div></div>
+    <div class="form-group"><label>Activity name</label><input id="af-name" type="text" value="${esc(a?.name ?? "")}" placeholder="Watering, Fertilizing, Pruning…" autofocus /></div>
+    <div class="form-group"><label>Every (days)</label><input id="af-days" type="number" min="0.5" max="365" step="0.5" value="${a?.interval_days ?? 7}" style="max-width:120px" /></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="backToSettings()">Back</button><button class="btn btn-primary" onclick="submitAct('${id ?? ""}')">${a ? "Save" : "Add Activity"}</button></div>`);
+}
+window.pickActIcon = (btn, e) => { document.getElementById("af-icon").value = e; btn.closest(".emoji-grid").querySelectorAll(".emoji-btn").forEach(b => b.classList.remove("selected")); btn.classList.add("selected"); };
+window.submitAct = async id => {
+  const name = document.getElementById("af-name").value.trim();
+  const days = parseFloat(document.getElementById("af-days").value) || 7;
+  if (!name) { document.getElementById("af-name").focus(); return; }
+  await saveActivity({ name, icon: document.getElementById("af-icon").value, interval_days: days }, id || null);
+  await loadLastLogs(); renderSettingsModal(); renderMain();
+};
+
+window.backToSettings = renderSettingsModal;
+window.openPlantForm  = openPlantForm;
+window.openActForm    = openActForm;
+window.closeModal     = closeModal;
+window.markDone       = markDone;
+window.selectPlant    = async id => { selectedId = id; await loadActivities(); await loadLastLogs(); renderMain(); };
+
+(async () => {
+  await loadMembers();
+  if (DB) { await initDb(); await loadPlants(); if (plants.length > 0) selectedId = plants[0].id; await loadActivities(); await loadLastLogs(); }
+  renderMain();
+  refreshTimer = setInterval(() => { if (!modalEl) renderMain(); }, 60_000);
+})();
+</script>
+</body>
+</html>

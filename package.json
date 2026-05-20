@@ -1,0 +1,8 @@
+{
+  "name": "chickadee-app-plant-care",
+  "version": "1.0.0",
+  "description": "Plant Care app for Family Hub",
+  "type": "module",
+  "scripts": { "build": "node build.mjs" },
+  "license": "MIT"
+}
