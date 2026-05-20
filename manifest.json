@@ -6,9 +6,17 @@
   "entrypoint": "index.html",
   "runtime": "static",
   "category": "family",
-  "tags": ["plants", "gardening", "watering", "care", "reminders"],
+  "tags": [
+    "plants",
+    "gardening",
+    "watering",
+    "care",
+    "reminders"
+  ],
   "data_access": {
-    "reads": ["family.members"],
+    "reads": [
+      "family.members"
+    ],
     "writes": []
   },
   "permissions": {
@@ -16,9 +24,15 @@
     "requires_approval": false
   },
   "storage": "db",
-  "nav": { "label": "Plants", "icon": "🪴" },
-  "widget": { "label": "Plant Care", "size": "small" },
+  "nav": {
+    "label": "Plants"
+  },
+  "widget": {
+    "label": "Plant Care",
+    "size": "small"
+  },
   "resource_limits": {
     "max_db_bytes": 52428800
-  }
+  },
+  "icon": "🪴"
 }
