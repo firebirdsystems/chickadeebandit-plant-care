@@ -134,6 +134,10 @@
     .settings-row:last-child { border-bottom: none; }
     .settings-row .info { flex: 1; font-size: 0.88rem; }
     .settings-row .sched-meta { font-size: 0.78rem; color: var(--muted); }
+    .act-list { margin: 4px 0 6px 10px; padding-left: 10px; border-left: 2px solid var(--border); }
+    .act-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); }
+    .act-row:last-child { border-bottom: none; }
+    .act-row .info { flex: 1; font-size: 0.83rem; }
 
     .empty { text-align: center; padding: 36px 16px; color: var(--muted); font-size: 0.9rem; }
     .empty-sm { font-size: 0.85rem; color: var(--muted); padding: 8px 0; }
@@ -155,10 +159,10 @@ const ME      = window.__CURRENT_MEMBER ?? null;
 
 let members        = [];
 let plants         = [];
-let activities     = [];
+let activities     = []; // all activities across all plants
 let lastLogs       = {};
 let selectedId     = null;
-let settingsTab    = "activities";
+let actFormPlantId = null; // plant context for the open activity form
 let refreshTimer   = null;
 
 async function db(sql, params = []) {
@@ -177,14 +181,14 @@ async function loadMembers() {
 }
 async function loadPlants() { const { rows } = await db(`SELECT * FROM plants ORDER BY created_at`); plants = rows ?? []; }
 async function loadActivities() {
-  if (!selectedId) { activities = []; return; }
-  const { rows } = await db(`SELECT * FROM activities WHERE plant_id = ? ORDER BY sort_order, created_at`, [selectedId]);
+  const { rows } = await db(`SELECT * FROM activities ORDER BY plant_id, sort_order, created_at`);
   activities = rows ?? [];
 }
 async function loadLastLogs() {
   lastLogs = {};
-  if (!activities.length) return;
-  const ids = activities.map(a => a.id);
+  const curActs = activities.filter(a => a.plant_id === selectedId);
+  if (!curActs.length) return;
+  const ids = curActs.map(a => a.id);
   const ph  = ids.map(() => "?").join(",");
   const { rows } = await db(`SELECT l.* FROM logs l INNER JOIN (SELECT activity_id, MAX(done_at) AS mx FROM logs WHERE activity_id IN (${ph}) GROUP BY activity_id) m ON l.activity_id = m.activity_id AND l.done_at = m.mx`, ids);
   for (const r of rows ?? []) lastLogs[r.activity_id] = r;
@@ -248,10 +252,13 @@ async function savePlant(fields, id = null) {
     await db(`INSERT INTO plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, ?)`, [newId, fields.name, fields.type, fields.emoji, fields.location, now]);
     plants = [...plants, { id: newId, ...fields, created_at: now }];
     if (!selectedId) selectedId = newId;
-    // Seed default activities
-    await db(`INSERT INTO activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, 'Watering', '💧', 7, 0, ?)`, [crypto.randomUUID(), newId, now]);
-    await db(`INSERT INTO activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, 'Fertilizing', '🧪', 30, 1, ?)`, [crypto.randomUUID(), newId, now]);
-    if (selectedId === newId) await loadActivities();
+    const wId = crypto.randomUUID(), fId = crypto.randomUUID();
+    await db(`INSERT INTO activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, 'Watering', '💧', 7, 0, ?)`, [wId, newId, now]);
+    await db(`INSERT INTO activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, 'Fertilizing', '🧪', 30, 1, ?)`, [fId, newId, now]);
+    activities = [...activities,
+      { id: wId, plant_id: newId, name: "Watering",    icon: "💧", interval_days: 7,  sort_order: 0, created_at: now },
+      { id: fId, plant_id: newId, name: "Fertilizing", icon: "🧪", interval_days: 30, sort_order: 1, created_at: now },
+    ];
   }
 }
 
@@ -261,19 +268,22 @@ async function deletePlant(id) {
   await db(`DELETE FROM activities WHERE plant_id = ?`, [id]);
   await db(`DELETE FROM logs WHERE plant_id = ?`, [id]);
   plants = plants.filter(p => p.id !== id);
-  if (selectedId === id) { selectedId = plants[0]?.id ?? null; activities = []; lastLogs = {}; if (selectedId) { await loadActivities(); await loadLastLogs(); } }
+  activities = activities.filter(a => a.plant_id !== id);
+  if (selectedId === id) { selectedId = plants[0]?.id ?? null; lastLogs = {}; if (selectedId) await loadLastLogs(); }
   return true;
 }
 
 async function saveActivity(fields, id = null) {
   const now = new Date().toISOString();
+  const plantId = actFormPlantId ?? selectedId;
   if (id) {
     await db(`UPDATE activities SET name = ?, icon = ?, interval_days = ? WHERE id = ?`, [fields.name, fields.icon, fields.interval_days, id]);
     activities = activities.map(a => a.id === id ? { ...a, ...fields } : a);
   } else {
     const newId = crypto.randomUUID();
-    await db(`INSERT INTO activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`, [newId, selectedId, fields.name, fields.icon, fields.interval_days, activities.length, now]);
-    activities = [...activities, { id: newId, plant_id: selectedId, ...fields }];
+    const sortOrder = activities.filter(a => a.plant_id === plantId).length;
+    await db(`INSERT INTO activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`, [newId, plantId, fields.name, fields.icon, fields.interval_days, sortOrder, now]);
+    activities = [...activities, { id: newId, plant_id: plantId, ...fields }];
   }
 }
 
@@ -326,15 +336,16 @@ function renderCard(activity) {
 function renderMain() {
   const plant     = plants.find(p => p.id === selectedId);
   const meIsAdmin = isAdult(ME);
+  const curActs   = activities.filter(a => a.plant_id === selectedId);
   const tabsHtml  = plants.length > 1
     ? `<div class="plant-tabs">${plants.map(p => `<button class="plant-tab ${p.id === selectedId ? "active" : ""}" onclick="selectPlant('${p.id}')">${p.emoji} ${esc(p.name)}</button>`).join("")}</div>` : "";
   let body = "";
   if (plants.length === 0) {
     body = meIsAdmin ? `<div class="empty">No plants yet. Tap ⚙️ to add your first plant.</div>` : `<div class="empty">No plants configured yet.</div>`;
-  } else if (activities.length === 0) {
+  } else if (curActs.length === 0) {
     body = meIsAdmin ? `<div class="empty">No activities for ${esc(plant?.name ?? "this plant")}. Tap ⚙️ to add some.</div>` : `<div class="empty">No activities configured yet.</div>`;
   } else {
-    body = `<div class="card-grid">${activities.map(renderCard).join("")}</div>`;
+    body = `<div class="card-grid">${curActs.map(renderCard).join("")}</div>`;
   }
   document.getElementById("root").innerHTML = `
     <header>
@@ -346,24 +357,40 @@ function renderMain() {
 
 // ─── Settings ─────────────────────────────────────────────────────────────
 function renderSettingsModal() {
-  const tab   = settingsTab;
-  const plant = plants.find(p => p.id === selectedId);
-  const petsHtml = `
-    ${plants.map(p => `<div class="settings-row"><div class="info"><strong>${p.emoji} ${esc(p.name)}</strong>${p.type ? ` <span class="muted">(${esc(p.type)})</span>` : ""}${p.location ? ` <span class="muted">· ${esc(p.location)}</span>` : ""}</div><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openPlantForm('${p.id}')">Edit</button><button class="btn btn-danger btn-sm" onclick="doDelPlant('${p.id}')">Delete</button></div></div>`).join("") || `<div class="empty-sm">No plants yet.</div>`}
-    <div style="margin-top:12px"><button class="btn btn-primary btn-sm" onclick="openPlantForm()">+ Add Plant</button></div>`;
-  const actsHtml = !selectedId ? `<div class="empty-sm">Select a plant first.</div>` : `
-    ${activities.map(a => `<div class="settings-row"><div class="info"><strong>${a.icon} ${esc(a.name)}</strong><div class="sched-meta">Every ${a.interval_days} day${a.interval_days !== 1 ? "s" : ""}</div></div><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openActForm('${a.id}')">Edit</button><button class="btn btn-danger btn-sm" onclick="doDelAct('${a.id}')">Delete</button></div></div>`).join("") || `<div class="empty-sm">No activities for ${esc(plant?.name ?? "this plant")} yet.</div>`}
-    <div style="margin-top:12px"><button class="btn btn-primary btn-sm" onclick="openActForm()">+ Add Activity</button></div>`;
+  const plantsHtml = plants.map(p => {
+    const pActs = activities.filter(a => a.plant_id === p.id);
+    const actsHtml = pActs.map(a => `
+      <div class="act-row">
+        <div class="info"><strong>${a.icon} ${esc(a.name)}</strong> <span class="sched-meta">Every ${a.interval_days} day${a.interval_days !== 1 ? "s" : ""}</span></div>
+        <div style="display:flex;gap:4px;flex-shrink:0">
+          <button class="btn btn-ghost btn-sm" onclick="openActForm('${a.id}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="doDelAct('${a.id}')">Delete</button>
+        </div>
+      </div>`).join("");
+    return `
+      <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <div class="info"><strong>${p.emoji} ${esc(p.name)}</strong>${p.type ? ` <span class="muted">(${esc(p.type)})</span>` : ""}${p.location ? ` <span class="muted">· ${esc(p.location)}</span>` : ""}</div>
+          <div style="display:flex;gap:6px;flex-shrink:0">
+            <button class="btn btn-ghost btn-sm" onclick="openPlantForm('${p.id}')">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="doDelPlant('${p.id}')">Delete</button>
+          </div>
+        </div>
+        <div class="act-list">
+          ${actsHtml || `<div class="empty-sm">No activities yet.</div>`}
+          <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="openActForm(null,'${p.id}')">+ Add Activity</button>
+        </div>
+      </div>`;
+  }).join("") || `<div class="empty-sm">No plants yet.</div>`;
   openModal(`
-    <div class="settings-header"><h3>⚙️ Settings</h3><button class="btn btn-ghost btn-sm" onclick="closeModal()">Done</button></div>
-    <div class="tabs"><button class="tab ${tab === "plants" ? "active" : ""}" onclick="switchTab('plants')">Plants</button><button class="tab ${tab === "activities" ? "active" : ""}" onclick="switchTab('activities')">Activities${plant ? ` — ${plant.emoji} ${esc(plant.name)}` : ""}</button></div>
-    <div>${tab === "plants" ? petsHtml : actsHtml}</div>`);
+    <div class="settings-header"><h3>⚙️ Plants &amp; Activities</h3><button class="btn btn-ghost btn-sm" onclick="closeModal()">Done</button></div>
+    ${plantsHtml}
+    <div style="margin-top:14px"><button class="btn btn-primary btn-sm" onclick="openPlantForm()">+ Add Plant</button></div>`);
 }
 
-window.switchTab    = t => { settingsTab = t; renderSettingsModal(); };
 window.doDelPlant   = async id => { if (await deletePlant(id)) { renderSettingsModal(); renderMain(); } };
 window.doDelAct     = async id => { if (await deleteActivity(id)) { renderSettingsModal(); renderMain(); } };
-window.openSettings = ()  => { settingsTab = "activities"; renderSettingsModal(); };
+window.openSettings = () => renderSettingsModal();
 
 // ─── Plant form ───────────────────────────────────────────────────────────
 const PLANT_EMOJIS = ["🪴","🌵","🌿","🌱","🌺","🌸","🌻","🌹","🌴","🎋","🍀","🌾","🌳","🌲","🪷","🎍"];
@@ -390,7 +417,8 @@ window.submitPlant = async id => {
 
 // ─── Activity form ────────────────────────────────────────────────────────
 const ACT_ICONS = ["💧","🧪","✂️","🪴","🌱","☀️","💦","🔄","🌡️","🧹","🪣","🫙"];
-function openActForm(id = null) {
+function openActForm(id = null, plantId = null) {
+  actFormPlantId = id ? (activities.find(x => x.id === id)?.plant_id ?? selectedId) : (plantId ?? selectedId);
   const a   = id ? activities.find(x => x.id === id) : null;
   const sel = a?.icon ?? "💧";
   const ig  = ACT_ICONS.map(e => `<button type="button" class="emoji-btn ${sel === e ? "selected" : ""}" onclick="pickActIcon(this,'${e}')">${e}</button>`).join("");
@@ -420,7 +448,7 @@ window.selectPlant    = async id => { selectedId = id; await loadActivities(); a
 
 (async () => {
   await loadMembers();
-  if (DB) { await initDb(); await loadPlants(); if (plants.length > 0) selectedId = plants[0].id; await loadActivities(); await loadLastLogs(); }
+  if (DB) { await initDb(); await Promise.all([loadPlants(), loadActivities()]); if (plants.length > 0) selectedId = plants[0].id; await loadLastLogs(); }
   renderMain();
   refreshTimer = setInterval(() => { if (!modalEl) renderMain(); }, 60_000);
 })();
