@@ -168,7 +168,8 @@ async function db(sql, params = []) {
 }
 
 async function initDb() {
-  // Schema is managed by hub migrations (migrations/001_init.sql)}
+  // Schema is managed by hub migrations (migrations/001_init.sql)
+}
 
 async function loadMembers() {
   if (!CONTEXT) { members = [{ id: "demo-1", name: "Alex", role: "adult" }, { id: "demo-2", name: "Jordan", role: "child" }]; return; }
