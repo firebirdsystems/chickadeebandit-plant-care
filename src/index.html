@@ -151,7 +151,7 @@
   <div id="root"><div class="loading">Loading…</div></div>
 </div>
 <script type="module">
-import { memberColor, initial, esc, isAdult } from "/hub-sdk.js";
+import { memberColor, initial, esc, isAdult, hubConfirm } from "/hub-sdk.js";
 
 const CONTEXT = window.__CONTEXT_URL ?? "";
 const DB      = window.__DB_URL      ?? "";
@@ -263,7 +263,7 @@ async function savePlant(fields, id = null) {
 }
 
 async function deletePlant(id) {
-  if (!confirm("Delete this plant and all its care data?")) return false;
+  if (!await hubConfirm({ message: "Delete this plant?", description: "All care data for this plant will be permanently removed.", confirmLabel: "Delete plant" })) return false;
   await db(`DELETE FROM plants WHERE id = ?`, [id]);
   await db(`DELETE FROM activities WHERE plant_id = ?`, [id]);
   await db(`DELETE FROM logs WHERE plant_id = ?`, [id]);
@@ -288,7 +288,7 @@ async function saveActivity(fields, id = null) {
 }
 
 async function deleteActivity(id) {
-  if (!confirm("Delete this activity?")) return false;
+  if (!await hubConfirm({ message: "Delete this activity?", description: "The activity and its log history will be permanently removed.", confirmLabel: "Delete" })) return false;
   await db(`DELETE FROM activities WHERE id = ?`, [id]);
   await db(`DELETE FROM logs WHERE activity_id = ?`, [id]);
   activities = activities.filter(a => a.id !== id);
