@@ -284,6 +284,12 @@ async function saveActivity(fields, id = null) {
     const sortOrder = activities.filter(a => a.plant_id === plantId).length;
     await db(`INSERT INTO activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`, [newId, plantId, fields.name, fields.icon, fields.interval_days, sortOrder, now]);
     activities = [...activities, { id: newId, plant_id: plantId, ...fields }];
+    if (fields.lastDoneAt) {
+      const logId = crypto.randomUUID();
+      await db(`INSERT INTO logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, ?)`,
+        [logId, newId, plantId, ME.id, fields.lastDoneAt]);
+      lastLogs[newId] = { id: logId, activity_id: newId, plant_id: plantId, done_by: ME.id, done_at: fields.lastDoneAt };
+    }
   }
 }
 
@@ -428,6 +434,7 @@ function openActForm(id = null, plantId = null) {
     <div class="form-group"><label>Icon</label><div class="emoji-grid">${ig}</div></div>
     <div class="form-group"><label>Activity name</label><input id="af-name" type="text" value="${esc(a?.name ?? "")}" placeholder="Watering, Fertilizing, Pruning…" autofocus /></div>
     <div class="form-group"><label>Every (days)</label><input id="af-days" type="number" min="0.5" max="365" step="0.5" value="${a?.interval_days ?? 7}" style="max-width:120px" /></div>
+    ${!a ? `<div class="form-group"><label>Last done <span class="muted-label">(optional)</span></label><input id="af-lastdone" type="date" style="max-width:180px" max="${new Date().toISOString().slice(0,10)}" /></div>` : ""}
     <div class="modal-actions"><button class="btn btn-ghost" onclick="backToSettings()">Back</button><button class="btn btn-primary" onclick="submitAct('${id ?? ""}')">${a ? "Save" : "Add Activity"}</button></div>`);
 }
 window.pickActIcon = (btn, e) => { document.getElementById("af-icon").value = e; btn.closest(".emoji-grid").querySelectorAll(".emoji-btn").forEach(b => b.classList.remove("selected")); btn.classList.add("selected"); };
@@ -435,7 +442,9 @@ window.submitAct = async id => {
   const name = document.getElementById("af-name").value.trim();
   const days = parseFloat(document.getElementById("af-days").value) || 7;
   if (!name) { document.getElementById("af-name").focus(); return; }
-  await saveActivity({ name, icon: document.getElementById("af-icon").value, interval_days: days }, id || null);
+  const lastDoneVal = document.getElementById("af-lastdone")?.value;
+  const lastDoneAt  = lastDoneVal ? new Date(lastDoneVal).toISOString() : null;
+  await saveActivity({ name, icon: document.getElementById("af-icon").value, interval_days: days, lastDoneAt }, id || null);
   await loadLastLogs(); renderSettingsModal(); renderMain();
 };
 
