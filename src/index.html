@@ -428,10 +428,18 @@ window.closeModal     = closeModal;
 window.markDone       = markDone;
 window.selectPlant    = async id => { selectedId = id; await loadActivities(); await loadLastLogs(); renderMain(); };
 
+function handleDeepLink() {
+  const plantId = new URLSearchParams(window.location.search).get("plantId");
+  if (!plantId) return;
+  const plant = plants.find(p => p.id === plantId);
+  if (plant) window.selectPlant(plantId);
+}
+
 (async () => {
   await loadMembers();
   if (DB) { await initDb(); await Promise.all([loadPlants(), loadActivities()]); if (plants.length > 0) selectedId = plants[0].id; await loadLastLogs(); }
   renderMain();
+  handleDeepLink();
   refreshTimer = setInterval(() => { if (!modalEl) renderMain(); }, 60_000);
 })();
 </script>
