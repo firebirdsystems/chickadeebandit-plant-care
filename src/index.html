@@ -180,9 +180,9 @@ async function loadMembers() {
   if (!CONTEXT) { members = [{ id: "demo-1", name: "Alex", role: "adult" }, { id: "demo-2", name: "Jordan", role: "child" }]; return; }
   try { const res = await fetch(`${CONTEXT}?keys=family.members`); members = ((await res.json())["family.members"]) ?? []; } catch { members = []; }
 }
-async function loadPlants() { const { rows } = await db(`SELECT * FROM plants ORDER BY created_at`); plants = rows ?? []; }
+async function loadPlants() { const { rows } = await db(`SELECT * FROM app_plant_care__plants ORDER BY created_at`); plants = rows ?? []; }
 async function loadActivities() {
-  const { rows } = await db(`SELECT * FROM activities ORDER BY plant_id, sort_order, created_at`);
+  const { rows } = await db(`SELECT * FROM app_plant_care__activities ORDER BY plant_id, sort_order, created_at`);
   activities = rows ?? [];
 }
 async function loadLastLogs() {
@@ -191,7 +191,7 @@ async function loadLastLogs() {
   if (!curActs.length) return;
   const ids = curActs.map(a => a.id);
   const ph  = ids.map(() => "?").join(",");
-  const { rows } = await db(`SELECT l.* FROM logs l INNER JOIN (SELECT activity_id, MAX(done_at) AS mx FROM logs WHERE activity_id IN (${ph}) GROUP BY activity_id) m ON l.activity_id = m.activity_id AND l.done_at = m.mx`, ids);
+  const { rows } = await db(`SELECT l.* FROM app_plant_care__logs l INNER JOIN (SELECT activity_id, MAX(done_at) AS mx FROM app_plant_care__logs WHERE activity_id IN (${ph}) GROUP BY activity_id) m ON l.activity_id = m.activity_id AND l.done_at = m.mx`, ids);
   for (const r of rows ?? []) lastLogs[r.activity_id] = r;
 }
 
@@ -212,9 +212,9 @@ async function markDone(activityId) {
   renderMain();
 
   try {
-    await db(`INSERT INTO logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, ?)`, [id, activityId, selectedId, ME.id, now]);
+    await db(`INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, ?)`, [id, activityId, selectedId, ME.id, now]);
     // Prune old logs in background — table stays at 1 row per activity, no effect on UI state
-    db(`DELETE FROM logs WHERE activity_id = ? AND id != ?`, [activityId, id]).catch(() => {});
+    db(`DELETE FROM app_plant_care__logs WHERE activity_id = ? AND id != ?`, [activityId, id]).catch(() => {});
   } catch {
     // Revert on INSERT failure
     if (prevLog) lastLogs[activityId] = prevLog;
@@ -226,16 +226,16 @@ async function markDone(activityId) {
 async function savePlant(fields, id = null) {
   const now = new Date().toISOString();
   if (id) {
-    await db(`UPDATE plants SET name = ?, type = ?, emoji = ?, location = ? WHERE id = ?`, [fields.name, fields.type, fields.emoji, fields.location, id]);
+    await db(`UPDATE app_plant_care__plants SET name = ?, type = ?, emoji = ?, location = ? WHERE id = ?`, [fields.name, fields.type, fields.emoji, fields.location, id]);
     plants = plants.map(p => p.id === id ? { ...p, ...fields } : p);
   } else {
     const newId = crypto.randomUUID();
-    await db(`INSERT INTO plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, ?)`, [newId, fields.name, fields.type, fields.emoji, fields.location, now]);
+    await db(`INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, ?)`, [newId, fields.name, fields.type, fields.emoji, fields.location, now]);
     plants = [...plants, { id: newId, ...fields, created_at: now }];
     if (!selectedId) selectedId = newId;
     const wId = crypto.randomUUID(), fId = crypto.randomUUID();
-    await db(`INSERT INTO activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, 'Watering', '💧', 7, 0, ?)`, [wId, newId, now]);
-    await db(`INSERT INTO activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, 'Fertilizing', '🧪', 30, 1, ?)`, [fId, newId, now]);
+    await db(`INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, 'Watering', '💧', 7, 0, ?)`, [wId, newId, now]);
+    await db(`INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, 'Fertilizing', '🧪', 30, 1, ?)`, [fId, newId, now]);
     activities = [...activities,
       { id: wId, plant_id: newId, name: "Watering",    icon: "💧", interval_days: 7,  sort_order: 0, created_at: now },
       { id: fId, plant_id: newId, name: "Fertilizing", icon: "🧪", interval_days: 30, sort_order: 1, created_at: now },
@@ -245,9 +245,9 @@ async function savePlant(fields, id = null) {
 
 async function deletePlant(id) {
   if (!await hubConfirm({ message: "Delete this plant?", description: "All care data for this plant will be permanently removed.", confirmLabel: "Delete plant" })) return false;
-  await db(`DELETE FROM plants WHERE id = ?`, [id]);
-  await db(`DELETE FROM activities WHERE plant_id = ?`, [id]);
-  await db(`DELETE FROM logs WHERE plant_id = ?`, [id]);
+  await db(`DELETE FROM app_plant_care__plants WHERE id = ?`, [id]);
+  await db(`DELETE FROM app_plant_care__activities WHERE plant_id = ?`, [id]);
+  await db(`DELETE FROM app_plant_care__logs WHERE plant_id = ?`, [id]);
   plants = plants.filter(p => p.id !== id);
   activities = activities.filter(a => a.plant_id !== id);
   if (selectedId === id) { selectedId = plants[0]?.id ?? null; lastLogs = {}; if (selectedId) await loadLastLogs(); }
@@ -258,16 +258,16 @@ async function saveActivity(fields, id = null) {
   const now = new Date().toISOString();
   const plantId = actFormPlantId ?? selectedId;
   if (id) {
-    await db(`UPDATE activities SET name = ?, icon = ?, interval_days = ? WHERE id = ?`, [fields.name, fields.icon, fields.interval_days, id]);
+    await db(`UPDATE app_plant_care__activities SET name = ?, icon = ?, interval_days = ? WHERE id = ?`, [fields.name, fields.icon, fields.interval_days, id]);
     activities = activities.map(a => a.id === id ? { ...a, ...fields } : a);
   } else {
     const newId = crypto.randomUUID();
     const sortOrder = activities.filter(a => a.plant_id === plantId).length;
-    await db(`INSERT INTO activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`, [newId, plantId, fields.name, fields.icon, fields.interval_days, sortOrder, now]);
+    await db(`INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`, [newId, plantId, fields.name, fields.icon, fields.interval_days, sortOrder, now]);
     activities = [...activities, { id: newId, plant_id: plantId, ...fields }];
     if (fields.lastDoneAt) {
       const logId = crypto.randomUUID();
-      await db(`INSERT INTO logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, ?)`,
+      await db(`INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, ?)`,
         [logId, newId, plantId, ME.id, fields.lastDoneAt]);
       lastLogs[newId] = { id: logId, activity_id: newId, plant_id: plantId, done_by: ME.id, done_at: fields.lastDoneAt };
     }
@@ -276,8 +276,8 @@ async function saveActivity(fields, id = null) {
 
 async function deleteActivity(id) {
   if (!await hubConfirm({ message: "Delete this activity?", description: "The activity and its log history will be permanently removed.", confirmLabel: "Delete" })) return false;
-  await db(`DELETE FROM activities WHERE id = ?`, [id]);
-  await db(`DELETE FROM logs WHERE activity_id = ?`, [id]);
+  await db(`DELETE FROM app_plant_care__activities WHERE id = ?`, [id]);
+  await db(`DELETE FROM app_plant_care__logs WHERE activity_id = ?`, [id]);
   activities = activities.filter(a => a.id !== id);
   delete lastLogs[id];
   return true;

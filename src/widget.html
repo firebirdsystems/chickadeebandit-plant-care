@@ -90,9 +90,9 @@ async function dbq(sql, params = []) {
 
 async function load() {
   const [{ rows: plants }, { rows: activities }, { rows: lastLogs }] = await Promise.all([
-    dbq(`SELECT id, name, type, emoji FROM plants ORDER BY name ASC`),
-    dbq(`SELECT id, plant_id, name, icon, interval_days FROM activities ORDER BY sort_order, created_at`),
-    dbq(`SELECT activity_id, MAX(done_at) AS last_done FROM logs GROUP BY activity_id`),
+    dbq(`SELECT id, name, type, emoji FROM app_plant_care__plants ORDER BY name ASC`),
+    dbq(`SELECT id, plant_id, name, icon, interval_days FROM app_plant_care__activities ORDER BY sort_order, created_at`),
+    dbq(`SELECT activity_id, MAX(done_at) AS last_done FROM app_plant_care__logs GROUP BY activity_id`),
   ]);
 
   const lastMap = Object.fromEntries(lastLogs.map(r => [r.activity_id, r.last_done]));
