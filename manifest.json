@@ -24,6 +24,10 @@
     "requires_approval": false
   },
   "storage": "db",
+  "row_policies": {
+    "app_plant_care__plants": { "kind": "adult_writable" },
+    "app_plant_care__activities": { "kind": "adult_writable" }
+  },
   "nav": {
     "label": "Plants"
   },

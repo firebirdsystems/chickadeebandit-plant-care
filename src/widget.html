@@ -135,7 +135,7 @@ async function load() {
       const cls   = dueCls(hours);
       const label = dueLabel(hours);
       return `<div class="activity-row">
-        <span class="act-icon">${act.icon ?? "💧"}</span>
+        <span class="act-icon">${esc(act.icon ?? "💧")}</span>
         <span class="act-name">${esc(act.name)}</span>
         <span class="due-badge ${cls}">${label}</span>
       </div>`;
@@ -143,7 +143,7 @@ async function load() {
 
     return `<div class="plant-section">
       <div class="plant-header">
-        <span class="plant-emoji">${plant.emoji ?? "🪴"}</span>
+        <span class="plant-emoji">${esc(plant.emoji ?? "🪴")}</span>
         <span class="plant-name">${esc(plant.name)}</span>
         ${plant.type ? `<span class="plant-type">${esc(plant.type)}</span>` : ""}
       </div>

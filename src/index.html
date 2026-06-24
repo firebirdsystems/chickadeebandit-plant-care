@@ -311,7 +311,7 @@ function renderCard(activity) {
   return `
     <div class="activity-card" style="--status-color:${color};--status-pct:${pctC.toFixed(3)}">
       <div class="card-body">
-        <div class="card-top"><span class="card-icon">${activity.icon}</span><span class="card-name">${esc(activity.name)}</span><span class="status-dot"></span></div>
+        <div class="card-top"><span class="card-icon">${esc(activity.icon)}</span><span class="card-name">${esc(activity.name)}</span><span class="status-dot"></span></div>
         <div class="card-label">${label}</div>
         ${lastByHtml}
         <div class="progress-track"><div class="progress-fill"></div></div>
@@ -325,7 +325,7 @@ function renderMain() {
   const meIsAdmin = isAdult(ME);
   const curActs   = activities.filter(a => a.plant_id === selectedId);
   const tabsHtml  = plants.length > 1
-    ? `<div class="plant-tabs">${plants.map(p => `<button class="plant-tab ${p.id === selectedId ? "active" : ""}" onclick="selectPlant('${p.id}')">${p.emoji} ${esc(p.name)}</button>`).join("")}</div>` : "";
+    ? `<div class="plant-tabs">${plants.map(p => `<button class="plant-tab ${p.id === selectedId ? "active" : ""}" onclick="selectPlant('${p.id}')">${esc(p.emoji)} ${esc(p.name)}</button>`).join("")}</div>` : "";
   let body = "";
   if (plants.length === 0) {
     body = meIsAdmin ? `<div class="empty">No plants yet. Tap ⚙️ to add your first plant.</div>` : `<div class="empty">No plants configured yet.</div>`;
@@ -336,7 +336,7 @@ function renderMain() {
   }
   document.getElementById("root").innerHTML = `
     <header>
-      <div><h1>${plant ? `${plant.emoji} ${esc(plant.name)}` : "🪴 Plant Care"}</h1><div class="sub">${plant?.type ? esc(plant.type) : "Care tracker"}${plant?.location ? ` · ${esc(plant.location)}` : ""}</div></div>
+      <div><h1>${plant ? `${esc(plant.emoji)} ${esc(plant.name)}` : "🪴 Plant Care"}</h1><div class="sub">${plant?.type ? esc(plant.type) : "Care tracker"}${plant?.location ? ` · ${esc(plant.location)}` : ""}</div></div>
       ${meIsAdmin ? `<button class="btn btn-icon" onclick="openSettings()" title="Settings">⚙️</button>` : ""}
     </header>
     ${tabsHtml}${body}`;
@@ -348,7 +348,7 @@ function renderSettingsModal() {
     const pActs = activities.filter(a => a.plant_id === p.id);
     const actsHtml = pActs.map(a => `
       <div class="act-row">
-        <div class="info"><strong>${a.icon} ${esc(a.name)}</strong> <span class="sched-meta">Every ${a.interval_days} day${a.interval_days !== 1 ? "s" : ""}</span></div>
+        <div class="info"><strong>${esc(a.icon)} ${esc(a.name)}</strong> <span class="sched-meta">Every ${a.interval_days} day${a.interval_days !== 1 ? "s" : ""}</span></div>
         <div style="display:flex;gap:4px;flex-shrink:0">
           <button class="btn btn-ghost btn-sm" onclick="openActForm('${a.id}')">Edit</button>
           <button class="btn btn-danger btn-sm" onclick="doDelAct('${a.id}')">Delete</button>
