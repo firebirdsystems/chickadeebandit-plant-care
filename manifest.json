@@ -1,7 +1,7 @@
 {
   "id": "plant-care",
   "name": "Plant Care",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Track watering, fertilizing, and any other care for your household plants. Color-coded urgency shows what needs attention. One tap to log it.",
   "entrypoint": "index.html",
   "runtime": "static",
@@ -25,8 +25,12 @@
   },
   "storage": "db",
   "row_policies": {
-    "app_plant_care__plants": { "kind": "adult_writable" },
-    "app_plant_care__activities": { "kind": "adult_writable" }
+    "plants": {
+      "kind": "adult_writable"
+    },
+    "activities": {
+      "kind": "adult_writable"
+    }
   },
   "nav": {
     "label": "Plants"
@@ -38,10 +42,13 @@
   "resource_limits": {
     "max_db_bytes": 52428800
   },
-  "icon": "🪴",
+  "icon": "\ud83e\udeb4",
   "ai_access": {
     "allowed": true,
     "mode": "read",
-    "db_exports": ["overdue_plants", "plants_summary"]
+    "db_exports": [
+      "overdue_plants",
+      "plants_summary"
+    ]
   }
 }
