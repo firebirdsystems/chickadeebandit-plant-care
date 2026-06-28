@@ -292,6 +292,9 @@ function openModal(html) {
   modalEl.innerHTML = `<div class="modal">${html}</div>`;
   modalEl.addEventListener("click", e => { if (e.target === modalEl) closeModal(); });
   document.body.appendChild(modalEl);
+  // Programmatic focus works inside cross-origin iframes (unlike the autofocus
+  // attribute, which the browser blocks) because it rides the user's click gesture.
+  modalEl.querySelector("[data-autofocus]")?.focus();
 }
 function closeModal() { modalEl?.remove(); modalEl = null; }
 
@@ -389,7 +392,7 @@ function openPlantForm(id = null) {
     <h3 style="margin-bottom:16px">${p ? "Edit Plant" : "Add Plant"}</h3>
     <input type="hidden" id="pf-emoji" value="${sel}" />
     <div class="form-group"><label>Icon</label><div class="emoji-grid">${eg}</div></div>
-    <div class="form-group"><label>Name</label><input id="pf-name" type="text" value="${esc(p?.name ?? "")}" placeholder="Monstera, Snake Plant…" autofocus /></div>
+    <div class="form-group"><label>Name</label><input id="pf-name" type="text" value="${esc(p?.name ?? "")}" placeholder="Monstera, Snake Plant…" data-autofocus /></div>
     <div class="form-group"><label>Type <span class="muted-label">(optional)</span></label><input id="pf-type" type="text" value="${esc(p?.type ?? "")}" placeholder="Succulent, Tropical…" /></div>
     <div class="form-group"><label>Location <span class="muted-label">(optional)</span></label><input id="pf-loc" type="text" value="${esc(p?.location ?? "")}" placeholder="Living room, Bedroom…" /></div>
     <div class="modal-actions"><button class="btn btn-ghost" onclick="backToSettings()">Back</button><button class="btn btn-primary" onclick="submitPlant('${id ?? ""}')">${p ? "Save" : "Add Plant"}</button></div>`);
@@ -415,7 +418,7 @@ function openActForm(id = null, plantId = null) {
     <h3 style="margin-bottom:16px">${a ? "Edit Activity" : "Add Activity"}</h3>
     <input type="hidden" id="af-icon" value="${sel}" />
     <div class="form-group"><label>Icon</label><div class="emoji-grid">${ig}</div></div>
-    <div class="form-group"><label>Activity name</label><input id="af-name" type="text" value="${esc(a?.name ?? "")}" placeholder="Watering, Fertilizing, Pruning…" autofocus /></div>
+    <div class="form-group"><label>Activity name</label><input id="af-name" type="text" value="${esc(a?.name ?? "")}" placeholder="Watering, Fertilizing, Pruning…" data-autofocus /></div>
     <div class="form-group"><label>Every (days)</label><input id="af-days" type="number" min="0.5" max="365" step="0.5" value="${a?.interval_days ?? 7}" style="max-width:120px" /></div>
     ${!a ? `<div class="form-group"><label>Last done <span class="muted-label">(optional)</span></label><input id="af-lastdone" type="date" style="max-width:180px" max="${new Date().toISOString().slice(0,10)}" /></div>` : ""}
     <div class="modal-actions"><button class="btn btn-ghost" onclick="backToSettings()">Back</button><button class="btn btn-primary" onclick="submitAct('${id ?? ""}')">${a ? "Save" : "Add Activity"}</button></div>`);
