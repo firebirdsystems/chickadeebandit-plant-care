@@ -24,6 +24,7 @@
     "requires_approval": false
   },
   "storage": "db",
+  "db_encryption": "off",
   "row_policies": {
     "plants": {
       "kind": "adult_writable"
