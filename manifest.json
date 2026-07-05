@@ -43,7 +43,7 @@
   "resource_limits": {
     "max_db_bytes": 52428800
   },
-  "icon": "\ud83e\udeb4",
+  "icon": "🪴",
   "ai_access": {
     "allowed": true,
     "mode": "read",
@@ -51,5 +51,24 @@
       "overdue_plants",
       "plants_summary"
     ]
+  },
+  "digest": {
+    "kind": "recurring_due",
+    "activity_table": "activities",
+    "activity_label_column": "name",
+    "activity_icon_column": "icon",
+    "interval_column": "interval_days",
+    "interval_unit": "days",
+    "default_interval": 7,
+    "parent": {
+      "table": "plants",
+      "activity_fk_column": "plant_id",
+      "parent_label_column": "name"
+    },
+    "last_done": {
+      "table": "logs",
+      "activity_fk_column": "activity_id",
+      "timestamp_column": "done_at"
+    }
   }
 }

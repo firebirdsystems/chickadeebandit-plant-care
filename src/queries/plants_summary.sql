@@ -12,5 +12,5 @@ LEFT JOIN app_plant_care__activities a
 LEFT JOIN app_plant_care__logs l
   ON l.plant_id      = p.id
 GROUP BY p.id, p.name, p.type, p.emoji, p.location
-ORDER BY last_cared_at NULLS FIRST, p.name
+ORDER BY last_cared_at, p.name
 LIMIT 200
