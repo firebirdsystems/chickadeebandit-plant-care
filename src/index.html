@@ -319,7 +319,7 @@ function renderCard(activity) {
         ${lastByHtml}
         <div class="progress-track"><div class="progress-fill"></div></div>
       </div>
-      <button class="done-btn" onclick="markDone('${activity.id}')">✓ Done</button>
+      <button class="done-btn" data-activity-id="${esc(activity.id)}" onclick="markDone(this.dataset.activityId)">✓ Done</button>
     </div>`;
 }
 
@@ -328,7 +328,7 @@ function renderMain() {
   const meIsAdmin = isAdult(ME);
   const curActs   = activities.filter(a => a.plant_id === selectedId);
   const tabsHtml  = plants.length > 1
-    ? `<div class="plant-tabs">${plants.map(p => `<button class="plant-tab ${p.id === selectedId ? "active" : ""}" onclick="selectPlant('${p.id}')">${esc(p.emoji)} ${esc(p.name)}</button>`).join("")}</div>` : "";
+    ? `<div class="plant-tabs">${plants.map(p => `<button class="plant-tab ${p.id === selectedId ? "active" : ""}" data-plant-id="${esc(p.id)}" onclick="selectPlant(this.dataset.plantId)">${esc(p.emoji)} ${esc(p.name)}</button>`).join("")}</div>` : "";
   let body = "";
   if (plants.length === 0) {
     body = meIsAdmin ? `<div class="empty">No plants yet. Tap ⚙️ to add your first plant.</div>` : `<div class="empty">No plants configured yet.</div>`;
@@ -353,8 +353,8 @@ function renderSettingsModal() {
       <div class="act-row">
         <div class="info"><strong>${esc(a.icon)} ${esc(a.name)}</strong> <span class="sched-meta">Every ${a.interval_days} day${a.interval_days !== 1 ? "s" : ""}</span></div>
         <div style="display:flex;gap:4px;flex-shrink:0">
-          <button class="btn btn-ghost btn-sm" onclick="openActForm('${a.id}')">Edit</button>
-          <button class="btn btn-danger btn-sm" onclick="doDelAct('${a.id}')">Delete</button>
+          <button class="btn btn-ghost btn-sm" data-act-id="${esc(a.id)}" onclick="openActForm(this.dataset.actId)">Edit</button>
+          <button class="btn btn-danger btn-sm" data-act-id="${esc(a.id)}" onclick="doDelAct(this.dataset.actId)">Delete</button>
         </div>
       </div>`).join("");
     return `
@@ -362,13 +362,13 @@ function renderSettingsModal() {
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
           <div class="info"><strong>${p.emoji} ${esc(p.name)}</strong>${p.type ? ` <span class="muted">(${esc(p.type)})</span>` : ""}${p.location ? ` <span class="muted">· ${esc(p.location)}</span>` : ""}</div>
           <div style="display:flex;gap:6px;flex-shrink:0">
-            <button class="btn btn-ghost btn-sm" onclick="openPlantForm('${p.id}')">Edit</button>
-            <button class="btn btn-danger btn-sm" onclick="doDelPlant('${p.id}')">Delete</button>
+            <button class="btn btn-ghost btn-sm" data-plant-id="${esc(p.id)}" onclick="openPlantForm(this.dataset.plantId)">Edit</button>
+            <button class="btn btn-danger btn-sm" data-plant-id="${esc(p.id)}" onclick="doDelPlant(this.dataset.plantId)">Delete</button>
           </div>
         </div>
         <div class="act-list">
           ${actsHtml || `<div class="empty-sm">No activities yet.</div>`}
-          <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="openActForm(null,'${p.id}')">+ Add Activity</button>
+          <button class="btn btn-ghost btn-sm" style="margin-top:6px" data-plant-id="${esc(p.id)}" onclick="openActForm(null, this.dataset.plantId)">+ Add Activity</button>
         </div>
       </div>`;
   }).join("") || `<div class="empty-sm">No plants yet.</div>`;
@@ -395,7 +395,7 @@ function openPlantForm(id = null) {
     <div class="form-group"><label>Name</label><input id="pf-name" type="text" value="${esc(p?.name ?? "")}" placeholder="Monstera, Snake Plant…" data-autofocus /></div>
     <div class="form-group"><label>Type <span class="muted-label">(optional)</span></label><input id="pf-type" type="text" value="${esc(p?.type ?? "")}" placeholder="Succulent, Tropical…" /></div>
     <div class="form-group"><label>Location <span class="muted-label">(optional)</span></label><input id="pf-loc" type="text" value="${esc(p?.location ?? "")}" placeholder="Living room, Bedroom…" /></div>
-    <div class="modal-actions"><button class="btn btn-ghost" onclick="backToSettings()">Back</button><button class="btn btn-primary" onclick="submitPlant('${id ?? ""}')">${p ? "Save" : "Add Plant"}</button></div>`);
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="backToSettings()">Back</button><button class="btn btn-primary" data-plant-id="${esc(id ?? "")}" onclick="submitPlant(this.dataset.plantId)">${p ? "Save" : "Add Plant"}</button></div>`);
 }
 window.pickPlantEmoji = (btn, e) => { document.getElementById("pf-emoji").value = e; btn.closest(".emoji-grid").querySelectorAll(".emoji-btn").forEach(b => b.classList.remove("selected")); btn.classList.add("selected"); };
 window.submitPlant = async id => {
@@ -421,7 +421,7 @@ function openActForm(id = null, plantId = null) {
     <div class="form-group"><label>Activity name</label><input id="af-name" type="text" value="${esc(a?.name ?? "")}" placeholder="Watering, Fertilizing, Pruning…" data-autofocus /></div>
     <div class="form-group"><label>Every (days)</label><input id="af-days" type="number" min="0.5" max="365" step="0.5" value="${a?.interval_days ?? 7}" style="max-width:120px" /></div>
     ${!a ? `<div class="form-group"><label>Last done <span class="muted-label">(optional)</span></label><input id="af-lastdone" type="date" style="max-width:180px" max="${new Date().toISOString().slice(0,10)}" /></div>` : ""}
-    <div class="modal-actions"><button class="btn btn-ghost" onclick="backToSettings()">Back</button><button class="btn btn-primary" onclick="submitAct('${id ?? ""}')">${a ? "Save" : "Add Activity"}</button></div>`);
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="backToSettings()">Back</button><button class="btn btn-primary" data-act-id="${esc(id ?? "")}" onclick="submitAct(this.dataset.actId)">${a ? "Save" : "Add Activity"}</button></div>`);
 }
 window.pickActIcon = (btn, e) => { document.getElementById("af-icon").value = e; btn.closest(".emoji-grid").querySelectorAll(".emoji-btn").forEach(b => b.classList.remove("selected")); btn.classList.add("selected"); };
 window.submitAct = async id => {
