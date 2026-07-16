@@ -260,6 +260,16 @@ async function saveActivity(fields, id = null) {
   if (id) {
     await db(`UPDATE app_plant_care__activities SET name = ?, icon = ?, interval_days = ? WHERE id = ?`, [fields.name, fields.icon, fields.interval_days, id]);
     activities = activities.map(a => a.id === id ? { ...a, ...fields } : a);
+    if (fields.lastDoneAt) {
+      const { rows } = await db(`SELECT id FROM app_plant_care__logs WHERE activity_id = ? ORDER BY done_at DESC LIMIT 1`, [id]);
+      const existing = rows?.[0]?.id;
+      if (existing) {
+        await db(`UPDATE app_plant_care__logs SET done_at = ? WHERE id = ?`, [fields.lastDoneAt, existing]);
+      } else {
+        const logId = crypto.randomUUID();
+        await db(`INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, ?)`, [logId, id, plantId, ME.id, fields.lastDoneAt]);
+      }
+    }
   } else {
     const newId = crypto.randomUUID();
     const sortOrder = activities.filter(a => a.plant_id === plantId).length;
@@ -409,18 +419,23 @@ window.submitPlant = async id => {
 
 // ─── Activity form ────────────────────────────────────────────────────────
 const ACT_ICONS = ["💧","🧪","✂️","🪴","🌱","☀️","💦","🔄","🌡️","🧹","🪣","🫙"];
-function openActForm(id = null, plantId = null) {
+async function openActForm(id = null, plantId = null) {
   actFormPlantId = id ? (activities.find(x => x.id === id)?.plant_id ?? selectedId) : (plantId ?? selectedId);
   const a   = id ? activities.find(x => x.id === id) : null;
   const sel = a?.icon ?? "💧";
   const ig  = ACT_ICONS.map(e => `<button type="button" class="emoji-btn ${sel === e ? "selected" : ""}" onclick="pickActIcon(this,'${e}')">${e}</button>`).join("");
+  let lastDoneVal = "";
+  if (a) {
+    const { rows } = await db(`SELECT done_at FROM app_plant_care__logs WHERE activity_id = ? ORDER BY done_at DESC LIMIT 1`, [id]);
+    if (rows?.[0]?.done_at) lastDoneVal = new Date(rows[0].done_at).toISOString().slice(0, 10);
+  }
   openModal(`
     <h3 style="margin-bottom:16px">${a ? "Edit Activity" : "Add Activity"}</h3>
     <input type="hidden" id="af-icon" value="${sel}" />
     <div class="form-group"><label>Icon</label><div class="emoji-grid">${ig}</div></div>
     <div class="form-group"><label>Activity name</label><input id="af-name" type="text" value="${esc(a?.name ?? "")}" placeholder="Watering, Fertilizing, Pruning…" data-autofocus /></div>
     <div class="form-group"><label>Every (days)</label><input id="af-days" type="number" min="0.5" max="365" step="0.5" value="${a?.interval_days ?? 7}" style="max-width:120px" /></div>
-    ${!a ? `<div class="form-group"><label>Last done <span class="muted-label">(optional)</span></label><input id="af-lastdone" type="date" style="max-width:180px" max="${new Date().toISOString().slice(0,10)}" /></div>` : ""}
+    <div class="form-group"><label>Last done <span class="muted-label">(optional)</span></label><input id="af-lastdone" type="date" style="max-width:180px" max="${new Date().toISOString().slice(0,10)}" value="${lastDoneVal}" /></div>
     <div class="modal-actions"><button class="btn btn-ghost" onclick="backToSettings()">Back</button><button class="btn btn-primary" data-act-id="${esc(id ?? "")}" onclick="submitAct(this.dataset.actId)">${a ? "Save" : "Add Activity"}</button></div>`);
 }
 window.pickActIcon = (btn, e) => { document.getElementById("af-icon").value = e; btn.closest(".emoji-grid").querySelectorAll(".emoji-btn").forEach(b => b.classList.remove("selected")); btn.classList.add("selected"); };
