@@ -1,5 +1,6 @@
 {
   "id": "plant-care",
+  "contexts": ["household", "shared_space"],
   "name": "Plant Care",
   "version": "1.2.0",
   "description": "Track watering, fertilizing, and any other care for your household plants. Color-coded urgency shows what needs attention. One tap to log it.",
