@@ -20,6 +20,6 @@ LEFT JOIN app_plant_care__logs l
 GROUP BY a.id, a.name, a.icon, a.interval_days, p.id, p.name, p.emoji, p.location
 HAVING
   MAX(l.done_at) IS NULL
-  OR date(MAX(l.done_at), '+' || a.interval_days || ' days') < CURRENT_DATE
+  OR date(MAX(l.done_at), '+' || a.interval_days || ' days') < :today
 ORDER BY next_due_at, p.name
 LIMIT 100

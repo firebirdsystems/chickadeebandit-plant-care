@@ -26,6 +26,28 @@
   },
   "storage": "db",
   "db_encryption": "off",
+    "member_references": {
+      "logs": {
+        "column": "done_by",
+        "on_removed": "keep"
+      }
+    },
+  "retention": {
+    "logs": {
+      "default": 365,
+      "timestamp_column": "done_at",
+      "override_key": "care_history"
+    }
+  },
+  "delete_cascades": {
+    "plants": [
+      { "table": "activities", "foreign_key": "plant_id" },
+      { "table": "logs", "foreign_key": "plant_id" }
+    ],
+    "activities": [
+      { "table": "logs", "foreign_key": "activity_id" }
+    ]
+  },
   "row_policies": {
     "plants": {
       "kind": "adult_writable"
