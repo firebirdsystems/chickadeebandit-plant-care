@@ -63,6 +63,12 @@
     "label": "Plant Care",
     "size": "small"
   },
+  "publishes": [
+    "plant_care.logged"
+  ],
+  "publish_acls": {
+    "plant_care.logged": { "require_role": "member" }
+  },
   "glance": {
     "source": {
       "kind": "recurring_due"

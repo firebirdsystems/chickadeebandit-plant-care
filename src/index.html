@@ -156,6 +156,22 @@ import { formatDuration, statusColor, activityStatusFromLog, localDateToISO, iso
 
 const CONTEXT = window.__CONTEXT_URL ?? "";
 const DB      = window.__DB_URL      ?? "";
+const EVENTS  = window.__EVENTS_URL  ?? "";
+
+// Best-effort: the log row is already written, so a failed publish must never
+// throw into markDone's catch and revert the optimistic update.
+async function publishEvent(type, subjectId, payload = {}) {
+  if (!EVENTS) return;
+  try {
+    await fetch(EVENTS, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, subject_id: subjectId, payload }),
+    });
+  } catch {
+    // ignored on purpose
+  }
+}
 const ME      = window.__CURRENT_MEMBER ?? null;
 
 let members        = [];
@@ -215,6 +231,14 @@ async function markDone(activityId) {
     await db(`INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, ?)`, [id, activityId, selectedId, ME.id, now]);
     // Prune old logs in background — table stays at 1 row per activity, no effect on UI state
     db(`DELETE FROM app_plant_care__logs WHERE activity_id = ? AND id != ?`, [activityId, id]).catch(() => {});
+    const act   = activities.find(a => a.id === activityId);
+    const plant = plants.find(p => p.id === selectedId);
+    await publishEvent("plant_care.logged", id, {
+      activity: act?.name ?? "",
+      plant: plant?.name ?? "",
+      done_by: ME.id,
+      done_at: now,
+    });
   } catch {
     // Revert on INSERT failure
     if (prevLog) lastLogs[activityId] = prevLog;
