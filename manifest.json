@@ -25,6 +25,10 @@
     "requires_approval": false
   },
   "storage": "db",
+  "preload": {
+    "plants": {"sql": "SELECT * FROM app_plant_care__plants ORDER BY created_at"},
+    "activities": {"sql": "SELECT * FROM app_plant_care__activities ORDER BY plant_id, sort_order, created_at"}
+  },
   "db_encryption": "off",
     "member_references": {
       "logs": {
