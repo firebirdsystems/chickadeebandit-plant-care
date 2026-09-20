@@ -1,6 +1,6 @@
 # Plant Care
 
-A [Chickadee Bandit](http://chickadeebandit.com) app.
+A [Chickadee Bandit](https://chickadeebandit.com/app-library/plant-care) app.
 
 Track watering, fertilizing, and any other care for your household plants. Color-coded urgency shows what needs attention. One tap to log it.
 
