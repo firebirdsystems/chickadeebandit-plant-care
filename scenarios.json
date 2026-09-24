@@ -1,0 +1,200 @@
+{
+  "scenarios": [
+    {
+      "name": "plants and care activities are adult-writable: a child cannot add or edit them but can read them and log care",
+      "members": {
+        "parent": "adult",
+        "kid": "child"
+      },
+      "steps": [
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+          "params": [
+            "p1",
+            "Monstera",
+            "tropical",
+            "🪴",
+            "Living room",
+            "2026-01-01T00:00:00Z"
+          ],
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, 0, ?)",
+          "params": [
+            "a1",
+            "p1",
+            "Water",
+            "💧",
+            7,
+            "2026-01-01T00:00:00Z"
+          ],
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+          "params": [
+            "p2",
+            "Cactus",
+            "succulent",
+            "🌵",
+            "Desk",
+            "2026-01-02T00:00:00Z"
+          ],
+          "expect": {
+            "status": 403
+          }
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "UPDATE app_plant_care__activities SET interval_days = 90 WHERE id = 'a1'",
+          "expect": {
+            "status": 403
+          }
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "SELECT id, interval_days FROM app_plant_care__activities",
+          "expect": {
+            "status": 200,
+            "rowCount": 1,
+            "rowsContain": [
+              {
+                "id": "a1",
+                "interval_days": 7
+              }
+            ]
+          }
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "SELECT id FROM app_plant_care__plants",
+          "expect": {
+            "status": 200,
+            "rowCount": 1,
+            "rowsContain": [
+              {
+                "id": "p1"
+              }
+            ]
+          }
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, ?)",
+          "params": [
+            "l1",
+            "a1",
+            "p1",
+            "{{kid}}",
+            "2026-01-03T00:00:00Z"
+          ],
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "SELECT id FROM app_plant_care__logs WHERE done_by = ?",
+          "expect": {
+            "status": 200,
+            "rowCount": 1,
+            "rowsContain": [
+              {
+                "id": "l1"
+              }
+            ]
+          },
+          "params": [
+            "{{kid}}"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "plants_summary reports each plant's activity count and last care; overdue_plants lists never-done and lapsed activities",
+      "members": {
+        "parent": "adult"
+      },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p1', 'Fern', 'fern', '🌿', 'Bathroom', '2026-01-01T00:00:00Z'), ('p2', 'Basil', 'herb', '🌱', 'Kitchen', '2026-01-01T00:00:00Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a_water', 'p1', 'Water', '💧', 3, 0, '2026-01-01T00:00:00Z'), ('a_feed', 'p1', 'Fertilize', '🧪', 30, 1, '2026-01-01T00:00:00Z'), ('a_basil', 'p2', 'Water', '💧', 2, 0, '2026-01-01T00:00:00Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES ('l1', 'a_water', 'p1', ?, '2026-01-05T00:00:00Z')",
+          "params": [
+            "{{parent}}"
+          ]
+        },
+        {
+          "action": "named",
+          "as": "parent",
+          "kind": "query",
+          "name": "plants_summary",
+          "expect": {
+            "status": 200,
+            "rowCount": 2,
+            "rowsContain": [
+              {
+                "id": "p1",
+                "activity_count": 2,
+                "last_cared_at": "2026-01-05T00:00:00Z"
+              },
+              {
+                "id": "p2",
+                "activity_count": 1,
+                "last_cared_at": null
+              }
+            ]
+          }
+        },
+        {
+          "action": "named",
+          "as": "parent",
+          "kind": "query",
+          "name": "overdue_plants",
+          "expect": {
+            "status": 200,
+            "rowCount": 3,
+            "rowsContain": [
+              {
+                "activity_id": "a_water",
+                "last_done_at": "2026-01-05T00:00:00Z",
+                "next_due_at": "2026-01-08"
+              },
+              {
+                "activity_id": "a_feed",
+                "last_done_at": null
+              },
+              {
+                "activity_id": "a_basil",
+                "last_done_at": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
