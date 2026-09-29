@@ -11,6 +11,7 @@ Track watering, fertilizing, and any other care for your household plants. Color
 - One-tap logging with optional notes
 - Full care history per plant and activity
 - Supports multiple plants
+- Sitter links: a checklist page a plant-sitter can tick off without an account, room by room
 
 ## Install
 

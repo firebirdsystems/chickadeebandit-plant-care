@@ -139,6 +139,29 @@
     .act-row:last-child { border-bottom: none; }
     .act-row .info { flex: 1; font-size: 0.83rem; }
 
+    .form-group input[type="date"],
+    .form-group textarea {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 9px 12px; font-size: 0.95rem; outline: none;
+      transition: border-color .15s; background: var(--card); font-family: inherit; color: var(--text);
+    }
+    .form-group textarea { min-height: 90px; resize: vertical; }
+    .form-group textarea:focus, .form-group input[type="date"]:focus { border-color: var(--accent); }
+    .date-row { display: flex; gap: 10px; }
+    .date-row > div { flex: 1; }
+    .check-list { display: flex; flex-direction: column; gap: 10px; }
+    .check-group { display: flex; flex-direction: column; gap: 6px; }
+    .check-group-head { display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+    .check-opt { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer; }
+    .check-opt input { accent-color: var(--accent); width: 16px; height: 16px; }
+    .hint { font-size: 0.8rem; color: var(--muted); margin-bottom: 12px; }
+    .sit-row .info .sched-meta { display: block; }
+    .form-error { color: #dc2626; font-size: 0.85rem; margin-top: 8px; }
+    .form-group .check-opt {
+      display: flex; margin: 0; text-transform: none; letter-spacing: 0;
+      font-size: 0.9rem; font-weight: 500; color: var(--text);
+    }
+
     .empty { text-align: center; padding: 36px 16px; color: var(--muted); font-size: 0.9rem; }
     .empty-sm { font-size: 0.85rem; color: var(--muted); padding: 8px 0; }
     .loading { text-align: center; padding: 40px; color: var(--muted); }
@@ -151,8 +174,17 @@
   <div id="root"><div class="loading">Loading…</div></div>
 </div>
 <script type="module">
-import { memberColor, initial, esc, isAdult, hubConfirm } from "/hub-sdk.js";
-import { formatDuration, statusColor, activityStatusFromLog, localDateToISO, isoToLocalDateInput } from "./logic.js";
+import {
+  hubAlert, memberColor, initial, esc, isAdult, hubConfirm,
+  createShareHelper, activeShareLinks, SHARE_EXPIRY_CHOICES, DEFAULT_SHARE_EXPIRY_HOURS,
+} from "/hub-sdk.js";
+import {
+  formatDuration, statusColor, activityStatusFromLog, isoToLocalDateInput,
+  lastDoneToSave, schedLabel, sitSyncBlocksShare, planSitLinkRevoke, sitPlantIds, sitIsOpen, sitTaskRows,
+  sitTaskStatements, sitDates, sitExpiryChoice, plantsByLocation, CARE_SNAPSHOT_STATEMENTS, parseCareSnapshot,
+  refreshSitChecklists, SIT_MAX_TASKS,
+} from "./logic.js";
+import { createShareUi, createOverlayView } from "./share.js";
 
 const CONTEXT = window.__CONTEXT_URL ?? "";
 const DB      = window.__DB_URL      ?? "";
@@ -181,11 +213,56 @@ let lastLogs       = {};
 let selectedId     = null;
 let actFormPlantId = null; // plant context for the open activity form
 let refreshTimer   = null;
+let sits           = []; // sitter links' sits, newest first
+let sitTasks       = {}; // sitId → its checklist rows, in display order
+let sitTooMany     = {}; // sitId → the task count it would have, past SIT_MAX_TASKS
+
+// ─── Sitter share links (manifest.shareable.sit) ──────────────────────────
+// A sit is a public checklist for a plant-sitter who is not a member: each
+// tick lands in logs with done_by "sitter", so it clears overdue like a
+// member's tap. Only adults create sits (sits are adult_writable) and mint
+// links. Same shape as pet-care's.
+const share = createShareHelper(window.__SHARE_CREATE_URL, window.__SHARE_REVOKE_URL, window.__SHARE_LIST_URL);
+const shareView = createOverlayView(document);
+const shareUi = createShareUi({
+  share,
+  itemType: "sit",
+  noun: "sit",
+  writable: true,
+  writableVerb: "tick off tasks",
+  scopeHtml: () => "The page shows the sit’s dates and instructions, and each chosen plant’s tasks with their schedule, location and when each was last done. The sitter types their name when they tick a task; it shows in your plants’ history. <strong>Anyone with the link can see the instructions — add a password if they include a door code.</strong>",
+  esc,
+  confirm: (message, opts) => hubConfirm({ message, ...opts, destructive: true }),
+  writeText: (text) => navigator.clipboard.writeText(text),
+  activeLinks: activeShareLinks,
+  expiryChoices: SHARE_EXPIRY_CHOICES,
+  defaultExpiryHours: DEFAULT_SHARE_EXPIRY_HOURS,
+  // Looked up by id: the sit's dates can change while the panel is open.
+  expiryFor: (item) => sitExpiryChoice(sits.find(x => x.id === item.id)),
+  getMe: () => ME,
+  isAdmin: () => window.__IS_ADMIN === true,
+  memberName: (id) => members.find(m => m.id === id)?.name ?? "",
+  view: shareView,
+});
+shareView.bind(shareUi);
 
 async function db(sql, params = []) {
   if (!DB) return { rows: [] };
   const res = await fetch(DB, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sql, params }) });
   return res.json();
+}
+
+/** One atomic /api/db batch: every statement applies, or none does. */
+async function dbBatch(statements) {
+  if (!DB) return [];
+  const res = await fetch(DB, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ statements }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.error || "Could not save");
+  return body.results ?? [];
 }
 
 async function initDb() {
@@ -228,9 +305,13 @@ async function markDone(activityId) {
   renderMain();
 
   try {
-    await db(`INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, ?)`, [id, activityId, selectedId, ME.id, now]);
-    // Prune old logs in background — table stays at 1 row per activity, no effect on UI state
-    db(`DELETE FROM app_plant_care__logs WHERE activity_id = ? AND id != ?`, [activityId, id]).catch(() => {});
+    // db() resolves with the hub's { error } on a refused write rather than
+    // throwing, so check it: the optimistic tick must come back off.
+    const res = await db(`INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, ?)`, [id, activityId, selectedId, ME.id, now]);
+    if (res?.error) throw new Error(res.error);
+    // Prune old logs in background — no effect on UI state. A sitter's ticks
+    // are kept: they are the sit's record, shown on its share page.
+    db(`DELETE FROM app_plant_care__logs WHERE activity_id = ? AND id != ? AND sit_id = ''`, [activityId, id]).catch(() => {});
     const act   = activities.find(a => a.id === activityId);
     const plant = plants.find(p => p.id === selectedId);
     await publishEvent("plant_care.logged", id, {
@@ -288,7 +369,8 @@ async function saveActivity(fields, id = null) {
     await db(`UPDATE app_plant_care__activities SET name = ?, icon = ?, interval_days = ? WHERE id = ?`, [fields.name, fields.icon, fields.interval_days, id]);
     activities = activities.map(a => a.id === id ? { ...a, ...fields } : a);
     if (fields.lastDoneAt) {
-      const { rows } = await db(`SELECT id FROM app_plant_care__logs WHERE activity_id = ? ORDER BY done_at DESC LIMIT 1`, [id]);
+      // Never a sitter's tick: that is their record of the sit.
+      const { rows } = await db(`SELECT id FROM app_plant_care__logs WHERE activity_id = ? AND sit_id = '' ORDER BY done_at DESC LIMIT 1`, [id]);
       const existing = rows?.[0]?.id;
       if (existing) {
         await db(`UPDATE app_plant_care__logs SET done_at = ? WHERE id = ?`, [fields.lastDoneAt, existing]);
@@ -322,11 +404,13 @@ async function deleteActivity(id) {
 
 // ─── Modal ────────────────────────────────────────────────────────────────
 let modalEl = null;
-function openModal(html) {
+/** `name` stamps data-testid on the dialog, so a UI scenario waits on the
+ *  dialog it opened rather than on any modal. */
+function openModal(html, name = "") {
   closeModal();
   modalEl = document.createElement("div");
   modalEl.className = "modal-backdrop";
-  modalEl.innerHTML = `<div class="modal">${html}</div>`;
+  modalEl.innerHTML = `<div class="modal"${name ? ` data-testid="${name}"` : ""}>${html}</div>`;
   modalEl.addEventListener("click", e => { if (e.target === modalEl) closeModal(); });
   document.body.appendChild(modalEl);
   // Programmatic focus works inside cross-origin iframes (unlike the autofocus
@@ -342,14 +426,14 @@ function renderCard(activity) {
   const pctC  = Math.min(1, pct);
   let lastByHtml = "";
   if (lastBy) {
-    const name = lastBy.member?.name ?? "Someone";
-    const col  = memberColor(lastBy.member?.id ?? "", members);
-    lastByHtml = `<div class="card-last-by"><span class="by-avatar" style="background:${col}">${initial(name)}</span><span><strong>${esc(name)}</strong> · ${formatDuration(lastBy.agoD)} ago</span></div>`;
+    const name = lastBy.name;
+    const col  = memberColor(lastBy.member?.id ?? (lastBy.sitter ? "sitter" : ""), members);
+    lastByHtml = `<div class="card-last-by" data-testid="card-last-by"><span class="by-avatar" style="background:${col}">${initial(name)}</span><span><strong>${esc(name)}</strong> · ${formatDuration(lastBy.agoD)} ago</span></div>`;
   } else {
     lastByHtml = `<div class="card-last-by" style="font-style:italic;color:var(--muted)">Never done</div>`;
   }
   return `
-    <div class="activity-card" style="--status-color:${color};--status-pct:${pctC.toFixed(3)}">
+    <div class="activity-card" data-testid="activity-card" data-activity-id="${esc(activity.id)}" style="--status-color:${color};--status-pct:${pctC.toFixed(3)}">
       <div class="card-body">
         <div class="card-top"><span class="card-icon">${esc(activity.icon)}</span><span class="card-name">${esc(activity.name)}</span><span class="status-dot"></span></div>
         <div class="card-label">${label}</div>
@@ -377,7 +461,10 @@ function renderMain() {
   document.getElementById("root").innerHTML = `
     <header>
       <div><h1>${plant ? `${esc(plant.emoji)} ${esc(plant.name)}` : "🪴 Plant Care"}</h1><div class="sub">${plant?.type ? esc(plant.type) : "Care tracker"}${plant?.location ? ` · ${esc(plant.location)}` : ""}</div></div>
-      ${meIsAdmin ? `<button class="btn btn-icon" onclick="openSettings()" title="Settings">⚙️</button>` : ""}
+      ${meIsAdmin ? `<div style="display:flex;gap:6px">
+        ${DB ? `<button class="btn btn-icon" onclick="openSitters()" title="Sitter links" aria-label="Sitter links" data-testid="open-sitters">🧳</button>` : ""}
+        <button class="btn btn-icon" onclick="openSettings()" title="Settings">⚙️</button>
+      </div>` : ""}
     </header>
     ${tabsHtml}${body}`;
 }
@@ -388,7 +475,7 @@ function renderSettingsModal() {
     const pActs = activities.filter(a => a.plant_id === p.id);
     const actsHtml = pActs.map(a => `
       <div class="act-row">
-        <div class="info"><strong>${esc(a.icon)} ${esc(a.name)}</strong> <span class="sched-meta">Every ${a.interval_days} day${a.interval_days !== 1 ? "s" : ""}</span></div>
+        <div class="info"><strong>${esc(a.icon)} ${esc(a.name)}</strong> <span class="sched-meta">${esc(schedLabel(a))}</span></div>
         <div style="display:flex;gap:4px;flex-shrink:0">
           <button class="btn btn-ghost btn-sm" data-act-id="${esc(a.id)}" onclick="openActForm(this.dataset.actId)">Edit</button>
           <button class="btn btn-danger btn-sm" data-act-id="${esc(a.id)}" onclick="doDelAct(this.dataset.actId)">Delete</button>
@@ -397,7 +484,7 @@ function renderSettingsModal() {
     return `
       <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:0">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-          <div class="info"><strong>${p.emoji} ${esc(p.name)}</strong>${p.type ? ` <span class="muted">(${esc(p.type)})</span>` : ""}${p.location ? ` <span class="muted">· ${esc(p.location)}</span>` : ""}</div>
+          <div class="info"><strong>${esc(p.emoji)} ${esc(p.name)}</strong>${p.type ? ` <span class="muted">(${esc(p.type)})</span>` : ""}${p.location ? ` <span class="muted">· ${esc(p.location)}</span>` : ""}</div>
           <div style="display:flex;gap:6px;flex-shrink:0">
             <button class="btn btn-ghost btn-sm" data-plant-id="${esc(p.id)}" onclick="openPlantForm(this.dataset.plantId)">Edit</button>
             <button class="btn btn-danger btn-sm" data-plant-id="${esc(p.id)}" onclick="doDelPlant(this.dataset.plantId)">Delete</button>
@@ -415,8 +502,8 @@ function renderSettingsModal() {
     <div style="margin-top:14px"><button class="btn btn-primary btn-sm" onclick="openPlantForm()">+ Add Plant</button></div>`);
 }
 
-window.doDelPlant   = async id => { if (await deletePlant(id)) { renderSettingsModal(); renderMain(); } };
-window.doDelAct     = async id => { if (await deleteActivity(id)) { renderSettingsModal(); renderMain(); } };
+window.doDelPlant   = async id => { if (await deletePlant(id)) { renderSettingsModal(); renderMain(); syncSits(); } };
+window.doDelAct     = async id => { if (await deleteActivity(id)) { renderSettingsModal(); renderMain(); syncSits(); } };
 window.openSettings = () => renderSettingsModal();
 
 // ─── Plant form ───────────────────────────────────────────────────────────
@@ -427,7 +514,7 @@ function openPlantForm(id = null) {
   const eg = PLANT_EMOJIS.map(e => `<button type="button" class="emoji-btn ${sel === e ? "selected" : ""}" onclick="pickPlantEmoji(this,'${e}')">${e}</button>`).join("");
   openModal(`
     <h3 style="margin-bottom:16px">${p ? "Edit Plant" : "Add Plant"}</h3>
-    <input type="hidden" id="pf-emoji" value="${sel}" />
+    <input type="hidden" id="pf-emoji" value="${esc(sel)}" />
     <div class="form-group"><label>Icon</label><div class="emoji-grid">${eg}</div></div>
     <div class="form-group"><label>Name</label><input id="pf-name" type="text" value="${esc(p?.name ?? "")}" placeholder="Monstera, Snake Plant…" data-autofocus /></div>
     <div class="form-group"><label>Type <span class="muted-label">(optional)</span></label><input id="pf-type" type="text" value="${esc(p?.type ?? "")}" placeholder="Succulent, Tropical…" /></div>
@@ -441,7 +528,7 @@ window.submitPlant = async id => {
   const btn = modalEl?.querySelector('.modal-actions .btn-primary');
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
   await savePlant({ name, type: document.getElementById("pf-type").value.trim(), emoji: document.getElementById("pf-emoji").value, location: document.getElementById("pf-loc").value.trim() }, id || null);
-  renderSettingsModal(); renderMain();
+  renderSettingsModal(); renderMain(); syncSits();
 };
 
 // ─── Activity form ────────────────────────────────────────────────────────
@@ -458,11 +545,11 @@ async function openActForm(id = null, plantId = null) {
   }
   openModal(`
     <h3 style="margin-bottom:16px">${a ? "Edit Activity" : "Add Activity"}</h3>
-    <input type="hidden" id="af-icon" value="${sel}" />
+    <input type="hidden" id="af-icon" value="${esc(sel)}" />
     <div class="form-group"><label>Icon</label><div class="emoji-grid">${ig}</div></div>
     <div class="form-group"><label>Activity name</label><input id="af-name" type="text" value="${esc(a?.name ?? "")}" placeholder="Watering, Fertilizing, Pruning…" data-autofocus /></div>
     <div class="form-group"><label>Every (days)</label><input id="af-days" type="number" min="0.5" max="365" step="0.5" value="${a?.interval_days ?? 7}" style="max-width:120px" /></div>
-    <div class="form-group"><label>Last done <span class="muted-label">(optional)</span></label><input id="af-lastdone" type="date" style="max-width:180px" max="${isoToLocalDateInput(new Date().toISOString())}" value="${lastDoneVal}" /></div>
+    <div class="form-group"><label>Last done <span class="muted-label">(optional)</span></label><input id="af-lastdone" type="date" style="max-width:180px" max="${isoToLocalDateInput(new Date().toISOString())}" value="${lastDoneVal}" data-initial="${lastDoneVal}" /></div>
     <div class="modal-actions"><button class="btn btn-ghost" onclick="backToSettings()">Back</button><button class="btn btn-primary" data-act-id="${esc(id ?? "")}" onclick="submitAct(this.dataset.actId)">${a ? "Save" : "Add Activity"}</button></div>`);
 }
 window.pickActIcon = (btn, e) => { document.getElementById("af-icon").value = e; btn.closest(".emoji-grid").querySelectorAll(".emoji-btn").forEach(b => b.classList.remove("selected")); btn.classList.add("selected"); };
@@ -472,10 +559,11 @@ window.submitAct = async id => {
   if (!name) { document.getElementById("af-name").focus(); return; }
   const btn = modalEl?.querySelector('.modal-actions .btn-primary');
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
-  const lastDoneVal = document.getElementById("af-lastdone")?.value;
-  const lastDoneAt  = localDateToISO(lastDoneVal);
+  // Only when the member changed it (see lastDoneToSave).
+  const lastDoneEl = document.getElementById("af-lastdone");
+  const lastDoneAt = lastDoneEl ? lastDoneToSave(lastDoneEl.value, lastDoneEl.dataset.initial) : null;
   await saveActivity({ name, icon: document.getElementById("af-icon").value, interval_days: days, lastDoneAt }, id || null);
-  await loadLastLogs(); renderSettingsModal(); renderMain();
+  await loadLastLogs(); renderSettingsModal(); renderMain(); syncSits();
 };
 
 window.backToSettings = renderSettingsModal;
@@ -484,6 +572,293 @@ window.openActForm    = openActForm;
 window.closeModal     = closeModal;
 window.markDone       = markDone;
 window.selectPlant    = async id => { selectedId = id; await loadActivities(); await loadLastLogs(); renderMain(); };
+
+// ─── Sits ─────────────────────────────────────────────────────────────────
+function todayStr() { return isoToLocalDateInput(new Date().toISOString()); }
+
+/** Plants, activities, sits and their checklists, read fresh in one batch.
+ *  Throws when any read fails. Every checklist write is computed from this,
+ *  never from the page's own `plants` and `activities`: those can be empty after
+ *  a failed load, or hours old in a tab another adult has since edited past,
+ *  and a checklist built from either would delete or resurrect tasks. */
+async function readCare() {
+  return parseCareSnapshot(await dbBatch(CARE_SNAPSHOT_STATEMENTS));
+}
+
+function applySits(snap) {
+  sits = snap.sits;
+  sitTasks = {};
+  for (const row of snap.tasks) (sitTasks[row.sit_id] ??= []).push(row);
+}
+
+async function loadSits() {
+  const snap = await readCare();
+  applySits(snap);
+  return snap;
+}
+
+/** Bring each open sit's checklist in line with its plants' activities — a
+ *  renamed task, a changed schedule, an activity added or deleted — so the
+ *  sitter's page follows edits. One atomic batch per sit that drifted. Adults
+ *  only: sit_tasks is adult_writable. */
+async function refreshOpenSits() {
+  if (!isAdult(ME)) return { ok: true, failed: [], tooMany: {} };
+  const { snap, changed, failed, tooMany } = await refreshSitChecklists({
+    read: readCare, write: dbBatch, today: todayStr(), newId: () => crypto.randomUUID(),
+  });
+  applySits(snap);
+  sitTooMany = tooMany;
+  if (changed) await loadSits();
+  return { ok: true, failed, tooMany };
+}
+
+/** Reload the sits and refresh their checklists, one run at a time. Never
+ *  rejects: resolves to { ok, failed } — ok false when the read failed, and
+ *  `failed` the sits whose rewrite was refused. Background callers ignore it
+ *  (the next run retries); sharing checks it. */
+let sitSync = Promise.resolve();
+function syncSits() {
+  if (!DB || !isAdult(ME)) return Promise.resolve({ ok: true, failed: [], tooMany: {} });
+  const run = sitSync.then(refreshOpenSits).catch(() => ({ ok: false, failed: [], tooMany: {} }));
+  sitSync = run;
+  return run;
+}
+
+function renderSittersModal() {
+  const today = todayStr();
+  const rows = sits.map(sit => {
+    const archived = Number(sit.archived) === 1;
+    const state = archived ? "Archived" : sitIsOpen(sit, today) ? "" : "Ended";
+    const plantNames = sitPlantIds(sit)
+      .map(id => plants.find(p => p.id === id))
+      .filter(Boolean)
+      .map(p => `${p.emoji} ${p.name}`)
+      .join(", ");
+    const count = (sitTasks[sit.id] ?? []).length;
+    const meta = [sitDates(sit), state].filter(Boolean).join(" · ");
+    return `
+      <div class="settings-row sit-row" data-testid="sit-row" data-sit-id="${esc(sit.id)}">
+        <div class="info">
+          <strong>${esc(sit.title)}</strong>
+          ${meta ? `<span class="sched-meta">${esc(meta)}</span>` : ""}
+          <span class="sched-meta">${esc(plantNames || "No plants")} · ${count} ${count === 1 ? "task" : "tasks"}</span>
+          ${sitTooMany[sit.id] ? `<span class="form-error" data-testid="sit-too-many">Too many tasks (${sitTooMany[sit.id]}): a sitter’s page shows at most ${SIT_MAX_TASKS}. Its link keeps the last checklist that fit. Edit the sit to pick fewer plants.</span>` : ""}
+        </div>
+        <div style="display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
+          ${!archived && share.enabled ? `<button class="btn btn-primary btn-sm" data-sit-id="${esc(sit.id)}" onclick="shareSit(this.dataset.sitId)" data-testid="sit-share">Share</button>` : ""}
+          ${archived && share.enabled ? `<button class="btn btn-ghost btn-sm" data-sit-id="${esc(sit.id)}" onclick="revokeSitLinks(this.dataset.sitId)" data-testid="sit-revoke-links">Revoke links</button>` : ""}
+          <button class="btn btn-ghost btn-sm" data-sit-id="${esc(sit.id)}" onclick="openSitForm(this.dataset.sitId)">Edit</button>
+          <button class="btn btn-ghost btn-sm" data-sit-id="${esc(sit.id)}" onclick="toggleSitArchived(this.dataset.sitId)">${archived ? "Restore" : "Archive"}</button>
+          <button class="btn btn-danger btn-sm" data-sit-id="${esc(sit.id)}" onclick="doDeleteSit(this.dataset.sitId)">Delete</button>
+        </div>
+      </div>`;
+  }).join("") || `<div class="empty-sm">No sits yet.</div>`;
+
+  openModal(`
+    <div class="settings-header">
+      <h3>🧳 Sitter links</h3>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Done</button>
+    </div>
+    <p class="hint">Going away? Make a sit and send the sitter its link. They tick off tasks without an account, and each tick counts here just like yours. Archiving a sit closes its links.</p>
+    ${rows}
+    <div style="margin-top:14px">
+      <button class="btn btn-primary btn-sm" onclick="openSitForm()" data-testid="new-sit">+ New sit</button>
+    </div>
+  `, "sitters-modal");
+}
+
+function openSitForm(id = null) {
+  const sit = id ? sits.find(x => x.id === id) : null;
+  const chosen = new Set(sit ? sitPlantIds(sit) : plants.map(p => p.id));
+  // Grouped by location, so "Living room" plants go in together.
+  const groups = plantsByLocation(plants);
+  const plantChecks = groups.map(({ location, plants: list }) => `
+    <div class="check-group">
+      ${groups.length > 1 ? `<div class="check-group-head" data-testid="sit-room" data-room="${esc(location)}">
+        <span>${esc(location || "No location")}</span>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="toggleSitGroup(this)" data-testid="sit-room-all">All</button>
+      </div>` : ""}
+      ${list.map(p => `
+      <label class="check-opt">
+        <input type="checkbox" class="sf-plant" data-testid="sit-plant" data-plant-id="${esc(p.id)}" value="${esc(p.id)}" ${chosen.has(p.id) ? "checked" : ""} />
+        ${esc(p.emoji)} ${esc(p.name)}
+      </label>`).join("")}
+    </div>`).join("") || `<div class="empty-sm">Add a plant first (⚙️).</div>`;
+
+  openModal(`
+    <h3 style="margin-bottom:16px">${sit ? "Edit sit" : "New sit"}</h3>
+    <div class="form-group">
+      <label for="sf-title">Title</label>
+      <input id="sf-title" data-testid="field-sit-title" type="text" maxlength="120" value="${esc(sit?.title ?? "")}" placeholder="Plants, Oct 3–10" data-autofocus />
+    </div>
+    <div class="form-group date-row">
+      <div><label for="sf-start">From</label><input id="sf-start" type="date" value="${esc(sit?.starts_on ?? "")}" /></div>
+      <div><label for="sf-end">Until</label><input id="sf-end" type="date" value="${esc(sit?.ends_on ?? "")}" /></div>
+    </div>
+    <div class="form-group">
+      <label for="sf-instructions">Instructions <span class="muted-label">(shown on the sitter’s page)</span></label>
+      <textarea id="sf-instructions" maxlength="4000" placeholder="How much water, where the can is, which ones like a mist…">${esc(sit?.instructions ?? "")}</textarea>
+    </div>
+    <div class="form-group">
+      <label>Plants</label>
+      <div class="check-list">${plantChecks}</div>
+    </div>
+    <p class="hint">The sitter sees every care activity of the plants you pick, room by room, and when each was last done.</p>
+    <div id="sf-error" class="form-error" role="alert"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="openSitters()">Back</button>
+      <button class="btn btn-primary" data-sit-id="${esc(id ?? "")}" onclick="submitSit(this.dataset.sitId)" data-testid="save-sit">${sit ? "Save" : "Create sit"}</button>
+    </div>
+  `, "sit-form-modal");
+}
+
+window.submitSit = async function(existingId) {
+  if (!isAdult(ME)) return;
+  const title        = document.getElementById("sf-title").value.trim();
+  const starts_on    = document.getElementById("sf-start").value;
+  const ends_on      = document.getElementById("sf-end").value;
+  const instructions = document.getElementById("sf-instructions").value.trim();
+  const plantIds     = [...modalEl.querySelectorAll(".sf-plant:checked")].map(i => i.value);
+  const errEl        = document.getElementById("sf-error");
+  errEl.textContent = "";
+  if (!title) { document.getElementById("sf-title").focus(); return; }
+  if (!plantIds.length) { errEl.textContent = "Pick at least one plant."; return; }
+  if (starts_on && ends_on && ends_on < starts_on) { errEl.textContent = "The sit can’t end before it starts."; return; }
+
+  const id = existingId || crypto.randomUUID();
+  const plant_ids = JSON.stringify(plantIds);
+  const btn = modalEl?.querySelector(".modal-actions .btn-primary");
+  if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+  try {
+    const statements = existingId
+      ? [{ sql: "UPDATE app_plant_care__sits SET title = ?, instructions = ?, starts_on = ?, ends_on = ?, plant_ids = ? WHERE id = ?",
+           params: [title, instructions, starts_on, ends_on, plant_ids, id] }]
+      : [{ sql: "INSERT INTO app_plant_care__sits (id, title, instructions, starts_on, ends_on, plant_ids, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+           params: [id, title, instructions, starts_on, ends_on, plant_ids, ME.id, new Date().toISOString()] }];
+    // The sit and its checklist land together, so a link never shows a sit
+    // without its tasks. Built from a fresh read (see readCare).
+    const care = await readCare();
+    const rows = sitTaskRows({ plant_ids }, care.plants, care.activities);
+    // The sitter's page offers at most SIT_MAX_TASKS; 100 tasks is 9 statements,
+    // well inside the batch ceiling, so this is the limit that binds.
+    if (rows.length > SIT_MAX_TASKS) {
+      throw new Error(`A sit can have at most ${SIT_MAX_TASKS} tasks; this one would have ${rows.length}. Pick fewer plants.`);
+    }
+    statements.push(...sitTaskStatements(id, rows, () => crypto.randomUUID()));
+    await dbBatch(statements);
+    delete sitTooMany[id];
+    await loadSits();
+  } catch (e) {
+    errEl.textContent = e?.message || "Could not save the sit.";
+    if (btn) { btn.disabled = false; btn.textContent = existingId ? "Save" : "Create sit"; }
+    return;
+  }
+  renderSittersModal();
+};
+
+window.toggleSitArchived = async function(id) {
+  const sit = sits.find(x => x.id === id);
+  if (!sit || !isAdult(ME)) return;
+  const archived = Number(sit.archived) === 1 ? 0 : 1;
+  try {
+    await dbBatch([{ sql: "UPDATE app_plant_care__sits SET archived = ? WHERE id = ?", params: [archived, id] }]);
+    // A restored sit may have missed edits while it was archived.
+    if (archived) await loadSits();
+    else await syncSits();
+  } catch (e) {
+    hubAlert(e?.message || "Could not update the sit.");
+  }
+  renderSittersModal();
+};
+
+window.doDeleteSit = async function(id) {
+  if (!isAdult(ME)) return;
+  const ok = await hubConfirm({
+    message: "Delete this sit?",
+    description: "Its links stop working. The sitter’s ticks stay in your plants’ history.",
+    confirmLabel: "Delete sit",
+  });
+  if (!ok) return;
+  try {
+    // delete_cascades takes the sit's checklist; logs are care history and stay.
+    await dbBatch([{ sql: "DELETE FROM app_plant_care__sits WHERE id = ?", params: [id] }]);
+    await loadSits();
+  } catch (e) {
+    hubAlert(e?.message || "Could not delete the sit.");
+  }
+  renderSittersModal();
+};
+
+window.shareSit = async function(id) {
+  if (!isAdult(ME)) return;
+  // The link shows the checklist as stored, so bring it up to date first, and
+  // don't hand out a link to a checklist that could not be.
+  const result = await syncSits();
+  if (result.tooMany?.[id]) {
+    hubAlert(`This sit has too many tasks (${result.tooMany[id]}) for a sitter’s page, which shows at most ${SIT_MAX_TASKS}. Edit it to pick fewer plants.`);
+    return;
+  }
+  if (sitSyncBlocksShare(result, id)) {
+    hubAlert("Couldn’t bring this sit’s tasks up to date, so a link could show old ones. Try again in a moment.");
+    return;
+  }
+  const sit = sits.find(x => x.id === id);
+  if (sit) shareUi.open({ id: sit.id, title: sit.title });
+};
+
+/** An archived sit's links are closed but still live: restoring the sit
+ *  reopens them, so they count toward the household's link limit. The share
+ *  panel would also offer to mint a link that could not open, so an archived
+ *  sit gets this instead. */
+window.revokeSitLinks = async function(id) {
+  if (!isAdult(ME)) return;
+  let links;
+  try {
+    const status = await share.listAll();
+    if (!status || status.limits === null) throw new Error("refused");
+    links = activeShareLinks(status.links, id);
+  } catch {
+    hubAlert("Couldn’t check this sit’s links. Try again in a moment.");
+    return;
+  }
+  if (!links.length) { hubAlert("This sit has no live links."); return; }
+  // Only a link's creator or an admin can revoke it: offer those, name the rest.
+  const { mine, holders } = planSitLinkRevoke(links, { meId: ME?.id, isAdmin: window.__IS_ADMIN === true, members });
+  const othersNote = holders.length
+    ? ` ${links.length - mine.length === 1 ? "One link was" : `${links.length - mine.length} links were`} made by ${holders.join(" and ")}; they or an admin can revoke ${links.length - mine.length === 1 ? "it" : "them"}.`
+    : "";
+  if (!mine.length) {
+    hubAlert(links.length === 1
+      ? `This sit’s link was made by ${holders[0]}. They or an admin can revoke it.`
+      : `This sit’s links were made by ${holders.join(" and ")}. They or an admin can revoke them.`);
+    return;
+  }
+  const ok = await hubConfirm({
+    message: `Revoke ${mine.length === 1 ? "this sit’s link" : `${mine.length} of this sit’s links`}?`,
+    description: `Restoring the sit will no longer reopen ${mine.length === 1 ? "it" : "them"}. You can make a new link after restoring it.${othersNote}`,
+    confirmLabel: "Revoke",
+    destructive: true,
+  });
+  if (!ok) return;
+  let failedCount = 0;
+  for (const link of mine) {
+    try { await share.revoke(link.id); } catch { failedCount++; }
+  }
+  if (failedCount) hubAlert(`Couldn’t revoke ${failedCount} of ${mine.length}. Try again.`);
+};
+
+window.openSitters = async function() {
+  renderSittersModal();
+  await syncSits();
+  // Repaint only if the list is still what is on screen.
+  if (modalEl?.querySelector("[data-testid='new-sit']")) renderSittersModal();
+};
+window.openSitForm = openSitForm;
+window.toggleSitGroup = function(btn) {
+  const boxes = [...btn.closest(".check-group").querySelectorAll(".sf-plant")];
+  const on = !boxes.every(b => b.checked);
+  for (const b of boxes) b.checked = on;
+};
 
 function handleDeepLink() {
   const plantId = new URLSearchParams(window.location.search).get("plantId");
@@ -497,6 +872,9 @@ function handleDeepLink() {
   if (DB) { await initDb(); await Promise.all([loadPlants(), loadActivities()]); if (plants.length > 0) selectedId = plants[0].id; await loadLastLogs(); }
   renderMain();
   handleDeepLink();
+  // Keep open sits' checklists current with the plants' activities. Off the
+  // first paint: nothing on the main view depends on it.
+  syncSits();
   refreshTimer = setInterval(() => { if (!modalEl) renderMain(); }, 60_000);
 })();
 </script>

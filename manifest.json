@@ -30,9 +30,14 @@
     "activities": {"sql": "SELECT * FROM app_plant_care__activities ORDER BY plant_id, sort_order, created_at"}
   },
   "db_encryption": "off",
+  "db_plaintext_columns": ["archived", "sitter_name", "task_label", "label", "detail", "sort_order", "starts_on", "ends_on"],
     "member_references": {
       "logs": {
         "column": "done_by",
+        "on_removed": "keep"
+      },
+      "sits": {
+        "column": "created_by",
         "on_removed": "keep"
       }
     },
@@ -46,10 +51,15 @@
   "delete_cascades": {
     "plants": [
       { "table": "activities", "foreign_key": "plant_id" },
-      { "table": "logs", "foreign_key": "plant_id" }
+      { "table": "logs", "foreign_key": "plant_id" },
+      { "table": "sit_tasks", "foreign_key": "plant_id" }
     ],
     "activities": [
-      { "table": "logs", "foreign_key": "activity_id" }
+      { "table": "logs", "foreign_key": "activity_id" },
+      { "table": "sit_tasks", "foreign_key": "activity_id" }
+    ],
+    "sits": [
+      { "table": "sit_tasks", "foreign_key": "sit_id" }
     ]
   },
   "row_policies": {
@@ -61,6 +71,63 @@
     },
     "activities": {
       "kind": "adult_writable"
+    },
+    "sits": {
+      "kind": "adult_writable"
+    },
+    "sit_tasks": {
+      "kind": "adult_writable"
+    }
+  },
+  "shareable": {
+    "sit": {
+      "table": "sits",
+      "title_column": "title",
+      "columns": [
+        { "column": "starts_on", "label": "From", "format": "date" },
+        { "column": "ends_on", "label": "Until", "format": "date" },
+        { "column": "instructions", "label": "Instructions", "format": "multiline" }
+      ],
+      "visible_where": { "column": "archived", "values": ["0"] },
+      "feed": {
+        "label": "Done so far",
+        "table": "logs",
+        "fk_column": "sit_id",
+        "columns": [
+          { "column": "task_label", "label": "Task", "role": "heading" },
+          { "column": "sitter_name", "label": "By", "role": "detail" },
+          { "column": "done_at", "label": "Done", "format": "datetime", "role": "timestamp" }
+        ],
+        "order_column": "done_at",
+        "order": "newest",
+        "max_items": 100,
+        "empty_text": "Nothing ticked off yet."
+      },
+      "submit": {
+        "layout": { "kind": "checklist", "last_done": "all" },
+        "table": "logs",
+        "fk_column": "sit_id",
+        "fields": [
+          { "column": "sitter_name", "label": "Your name", "type": "text", "required": true, "max_length": 60 },
+          {
+            "column": "activity_id",
+            "label": "Task",
+            "type": "select",
+            "required": true,
+            "values_from": {
+              "table": "sit_tasks",
+              "fk_column": "sit_id",
+              "id_column": "activity_id",
+              "label_column": "label",
+              "detail_column": "detail",
+              "copy": { "plant_id": "plant_id", "task_label": "label" }
+            }
+          }
+        ],
+        "fixed_values": { "done_by": "sitter" },
+        "timestamp_columns": ["done_at"],
+        "max_submissions": 1000
+      }
     }
   },
   "nav": {

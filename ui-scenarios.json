@@ -1,0 +1,444 @@
+{
+  "scenarios": [
+    {
+      "name": "an adult makes a sit room by room: the form groups plants by location, and one room's All leaves it out",
+      "members": {
+        "owner": "adult"
+      },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p-mon', 'Monstera', 'Tropical', '🪴', 'Living room', '2026-09-01T09:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p-basil', 'Basil', 'Herb', '🌿', 'Kitchen', '2026-09-01T10:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p-fern', 'Fern', '', '🌿', 'living room', '2026-09-01T11:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-mon-water', 'p-mon', 'Watering', '💧', 7, 0, '2026-09-01T09:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-basil-water', 'p-basil', 'Watering', '💧', 2, 0, '2026-09-01T10:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-fern-water', 'p-fern', 'Watering', '💧', 5, 0, '2026-09-01T11:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-fern-mist', 'p-fern', 'Misting', '💦', 1, 1, '2026-09-01T11:00:00.000Z')"
+        },
+        {
+          "action": "open",
+          "as": "owner"
+        },
+        {
+          "action": "expectVisible",
+          "as": "owner",
+          "selector": "[data-testid=\"open-sitters\"]"
+        },
+        {
+          "action": "click",
+          "as": "owner",
+          "selector": "[data-testid=\"open-sitters\"]"
+        },
+        {
+          "action": "waitFor",
+          "as": "owner",
+          "selector": "[data-testid=\"sitters-modal\"]"
+        },
+        {
+          "action": "click",
+          "as": "owner",
+          "selector": "[data-testid=\"new-sit\"]"
+        },
+        {
+          "action": "waitFor",
+          "as": "owner",
+          "selector": "[data-testid=\"sit-form-modal\"]"
+        },
+        {
+          "action": "expectCount",
+          "as": "owner",
+          "selector": "[data-testid=\"sit-room\"]",
+          "count": 2
+        },
+        {
+          "action": "fill",
+          "as": "owner",
+          "selector": "[data-testid=\"field-sit-title\"]",
+          "value": "Plants while away"
+        },
+        {
+          "action": "click",
+          "as": "owner",
+          "selector": "[data-testid=\"sit-room\"][data-room=\"Kitchen\"] [data-testid=\"sit-room-all\"]"
+        },
+        {
+          "action": "click",
+          "as": "owner",
+          "selector": "[data-testid=\"save-sit\"]"
+        },
+        {
+          "action": "expectText",
+          "as": "owner",
+          "selector": "[data-testid=\"sitters-modal\"] [data-testid=\"sit-row\"]",
+          "text": "3 tasks"
+        },
+        {
+          "action": "reload",
+          "as": "owner"
+        },
+        {
+          "action": "expectVisible",
+          "as": "owner",
+          "selector": "[data-testid=\"open-sitters\"]"
+        },
+        {
+          "action": "click",
+          "as": "owner",
+          "selector": "[data-testid=\"open-sitters\"]"
+        },
+        {
+          "action": "waitFor",
+          "as": "owner",
+          "selector": "[data-testid=\"sitters-modal\"]"
+        },
+        {
+          "action": "expectText",
+          "as": "owner",
+          "selector": "[data-testid=\"sit-row\"]",
+          "text": "Plants while away"
+        },
+        {
+          "action": "expectText",
+          "as": "owner",
+          "selector": "[data-testid=\"sit-row\"]",
+          "text": "3 tasks"
+        },
+        {
+          "action": "expectNoText",
+          "as": "owner",
+          "selector": "[data-testid=\"sit-row\"]",
+          "text": "Basil"
+        }
+      ]
+    },
+    {
+      "name": "a sitter's tick shows the name they typed, for a child too; only an adult gets the Sitter button",
+      "members": {
+        "kid": "child",
+        "grown": "adult"
+      },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p-mon', 'Monstera', 'Tropical', '🪴', 'Living room', '2026-09-01T09:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p-basil', 'Basil', 'Herb', '🌿', 'Kitchen', '2026-09-01T10:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p-fern', 'Fern', '', '🌿', 'living room', '2026-09-01T11:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-mon-water', 'p-mon', 'Watering', '💧', 7, 0, '2026-09-01T09:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-basil-water', 'p-basil', 'Watering', '💧', 2, 0, '2026-09-01T10:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-fern-water', 'p-fern', 'Watering', '💧', 5, 0, '2026-09-01T11:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-fern-mist', 'p-fern', 'Misting', '💦', 1, 1, '2026-09-01T11:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at, sit_id, sitter_name, task_label) VALUES ('l-sam', 'a-mon-water', 'p-mon', 'sitter', strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-2 hours'), 's-x', 'Sam Sitter', 'Monstera · Watering')"
+        },
+        {
+          "action": "open",
+          "as": "kid"
+        },
+        {
+          "action": "expectText",
+          "as": "kid",
+          "selector": "[data-testid=\"activity-card\"][data-activity-id=\"a-mon-water\"] [data-testid=\"card-last-by\"]",
+          "text": "Sam Sitter"
+        },
+        {
+          "action": "expectCount",
+          "as": "kid",
+          "selector": "[data-testid=\"open-sitters\"]",
+          "count": 0
+        },
+        {
+          "action": "open",
+          "as": "grown"
+        },
+        {
+          "action": "expectText",
+          "as": "grown",
+          "selector": "[data-testid=\"activity-card\"][data-activity-id=\"a-mon-water\"] [data-testid=\"card-last-by\"]",
+          "text": "Sam Sitter"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"open-sitters\"]"
+        }
+      ]
+    },
+    {
+      "name": "an archived sit offers Revoke links and never Share; an open sit offers Share",
+      "members": {
+        "grown": "adult"
+      },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p-mon', 'Monstera', 'Tropical', '🪴', 'Living room', '2026-09-01T09:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p-basil', 'Basil', 'Herb', '🌿', 'Kitchen', '2026-09-01T10:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p-fern', 'Fern', '', '🌿', 'living room', '2026-09-01T11:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-mon-water', 'p-mon', 'Watering', '💧', 7, 0, '2026-09-01T09:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-basil-water', 'p-basil', 'Watering', '💧', 2, 0, '2026-09-01T10:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-fern-water', 'p-fern', 'Watering', '💧', 5, 0, '2026-09-01T11:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-fern-mist', 'p-fern', 'Misting', '💦', 1, 1, '2026-09-01T11:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__sits (id, title, plant_ids, archived, created_by, created_at) VALUES ('s-open', 'Open sit', '[\"p-mon\"]', 0, ?, '2026-09-02T09:00:00.000Z')",
+          "params": [
+            "{{grown}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__sits (id, title, plant_ids, archived, created_by, created_at) VALUES ('s-arch', 'Old sit', '[\"p-mon\"]', 1, ?, '2026-09-01T09:00:00.000Z')",
+          "params": [
+            "{{grown}}"
+          ]
+        },
+        {
+          "action": "open",
+          "as": "grown"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"open-sitters\"]"
+        },
+        {
+          "action": "click",
+          "as": "grown",
+          "selector": "[data-testid=\"open-sitters\"]"
+        },
+        {
+          "action": "waitFor",
+          "as": "grown",
+          "selector": "[data-testid=\"sitters-modal\"]"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"sit-row\"][data-sit-id=\"s-open\"] [data-testid=\"sit-share\"]"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"sit-row\"][data-sit-id=\"s-arch\"]"
+        },
+        {
+          "action": "expectCount",
+          "as": "grown",
+          "selector": "[data-testid=\"sit-row\"][data-sit-id=\"s-arch\"] [data-testid=\"sit-share\"]",
+          "count": 0
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"sit-row\"][data-sit-id=\"s-arch\"] [data-testid=\"sit-revoke-links\"]"
+        },
+        {
+          "action": "expectCount",
+          "as": "grown",
+          "selector": "[data-testid=\"sit-row\"][data-sit-id=\"s-open\"] [data-testid=\"sit-revoke-links\"]",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "name": "an adult's page builds a seeded sit's checklist before it is shared, and Share opens the panel with the day-after-the-sit expiry",
+      "members": {
+        "grown": "adult"
+      },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p-mon', 'Monstera', 'Tropical', '🪴', 'Living room', '2026-09-01T09:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p-basil', 'Basil', 'Herb', '🌿', 'Kitchen', '2026-09-01T10:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p-fern', 'Fern', '', '🌿', 'living room', '2026-09-01T11:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-mon-water', 'p-mon', 'Watering', '💧', 7, 0, '2026-09-01T09:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-basil-water', 'p-basil', 'Watering', '💧', 2, 0, '2026-09-01T10:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-fern-water', 'p-fern', 'Watering', '💧', 5, 0, '2026-09-01T11:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a-fern-mist', 'p-fern', 'Misting', '💦', 1, 1, '2026-09-01T11:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__sits (id, title, starts_on, ends_on, plant_ids, archived, created_by, created_at) VALUES ('s-trip', 'Trip', date('now', '+1 day'), date('now', '+3 days'), '[\"p-fern\"]', 0, ?, '2026-09-02T09:00:00.000Z')",
+          "params": [
+            "{{grown}}"
+          ]
+        },
+        {
+          "action": "open",
+          "as": "grown"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"open-sitters\"]"
+        },
+        {
+          "action": "click",
+          "as": "grown",
+          "selector": "[data-testid=\"open-sitters\"]"
+        },
+        {
+          "action": "waitFor",
+          "as": "grown",
+          "selector": "[data-testid=\"sitters-modal\"]"
+        },
+        {
+          "action": "expectText",
+          "as": "grown",
+          "selector": "[data-testid=\"sit-row\"][data-sit-id=\"s-trip\"]",
+          "text": "2 tasks"
+        },
+        {
+          "action": "click",
+          "as": "grown",
+          "selector": "[data-testid=\"sit-row\"][data-sit-id=\"s-trip\"] [data-testid=\"sit-share\"]"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"share-panel\"]"
+        },
+        {
+          "action": "expectText",
+          "as": "grown",
+          "selector": "#share-expiry",
+          "text": "Until the day after the sit"
+        }
+      ]
+    },
+    {
+      "name": "a sit that grows past the sitter page's 100 tasks keeps its last checklist and says so on its row",
+      "members": {
+        "grown": "adult"
+      },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p-big', 'Greenhouse', '', '🪴', '', '2026-09-01T09:00:00.000Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) WITH RECURSIVE n(i) AS (SELECT 0 UNION ALL SELECT i + 1 FROM n WHERE i < 100) SELECT 'a-' || i, 'p-big', 'Task ' || i, '💧', 7, i, '2026-09-01T09:00:00.000Z' FROM n"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__sits (id, title, plant_ids, archived, created_by, created_at) VALUES ('s-big', 'Everything', '[\"p-big\"]', 0, ?, '2026-09-02T09:00:00.000Z')",
+          "params": [
+            "{{grown}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES ('t-old', 's-big', 'a-0', 'p-big', 'Greenhouse · Task 0', 'Every 7 days', 0)"
+        },
+        {
+          "action": "open",
+          "as": "grown"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"open-sitters\"]"
+        },
+        {
+          "action": "click",
+          "as": "grown",
+          "selector": "[data-testid=\"open-sitters\"]"
+        },
+        {
+          "action": "waitFor",
+          "as": "grown",
+          "selector": "[data-testid=\"sitters-modal\"]"
+        },
+        {
+          "action": "expectText",
+          "as": "grown",
+          "selector": "[data-testid=\"sit-row\"][data-sit-id=\"s-big\"] [data-testid=\"sit-too-many\"]",
+          "text": "Too many tasks (101)"
+        },
+        {
+          "action": "expectText",
+          "as": "grown",
+          "selector": "[data-testid=\"sit-row\"][data-sit-id=\"s-big\"]",
+          "text": "1 task"
+        }
+      ]
+    }
+  ]
+}

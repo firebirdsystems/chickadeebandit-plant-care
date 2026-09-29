@@ -195,6 +195,162 @@
           }
         }
       ]
+    },
+    {
+      "name": "only adults create a sit and its checklist; a child can read them",
+      "members": {
+        "parent": "adult",
+        "child": "child"
+      },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p1', 'Monstera', 'Tropical', '🪴', 'Living room', '2026-01-01T00:00:00Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a1', 'p1', 'Watering', '💧', 7, 0, '2026-01-01T00:00:00Z')"
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "INSERT INTO app_plant_care__sits (id, title, starts_on, ends_on, plant_ids, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          "params": [
+            "s1",
+            "Plants, Oct 3–10",
+            "2026-10-03",
+            "2026-10-10",
+            "[\"p1\"]",
+            "{{parent}}",
+            "2026-09-28T00:00:00Z"
+          ],
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          "params": [
+            "t1",
+            "s1",
+            "a1",
+            "p1",
+            "Monstera · Watering",
+            "Every 7 days · Living room",
+            0
+          ],
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "action": "db",
+          "as": "child",
+          "sql": "INSERT INTO app_plant_care__sits (id, title, plant_ids, created_by, created_at) VALUES (?, ?, ?, ?, ?)",
+          "params": [
+            "s2",
+            "Mine",
+            "[]",
+            "{{child}}",
+            "2026-09-28T00:00:00Z"
+          ],
+          "expect": {
+            "status": 403
+          }
+        },
+        {
+          "action": "db",
+          "as": "child",
+          "sql": "UPDATE app_plant_care__sit_tasks SET label = ? WHERE id = ?",
+          "params": [
+            "x",
+            "t1"
+          ],
+          "expect": {
+            "status": 403
+          }
+        },
+        {
+          "action": "db",
+          "as": "child",
+          "sql": "SELECT s.title, t.label FROM app_plant_care__sits s JOIN app_plant_care__sit_tasks t ON t.sit_id = s.id",
+          "expect": {
+            "status": 200,
+            "rowCount": 1,
+            "rowsContain": [
+              {
+                "title": "Plants, Oct 3–10",
+                "label": "Monstera · Watering"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "deleting a sit removes its checklist and keeps the sitter's ticks",
+      "members": {
+        "parent": "adult"
+      },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES ('p1', 'Monstera', 'Tropical', '🪴', 'Living room', '2026-01-01T00:00:00Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES ('a1', 'p1', 'Watering', '💧', 7, 0, '2026-01-01T00:00:00Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__sits (id, title, plant_ids, created_by, created_at) VALUES ('s1', 'Monstera', '[\"p1\"]', 'x', '2026-09-28T00:00:00Z')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label) VALUES ('t1', 's1', 'a1', 'p1', 'Monstera · Watering')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at, sit_id, sitter_name, task_label) VALUES ('l1', 'a1', 'p1', 'sitter', '2026-10-04T08:00:00.000Z', 's1', 'Sam', 'Monstera · Watering')"
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "DELETE FROM app_plant_care__sits WHERE id = ?",
+          "params": [
+            "s1"
+          ],
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "SELECT id FROM app_plant_care__sit_tasks",
+          "expect": {
+            "status": 200,
+            "rowCount": 0
+          }
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "SELECT id, sitter_name FROM app_plant_care__logs",
+          "expect": {
+            "status": 200,
+            "rowCount": 1,
+            "rowsContain": [
+              {
+                "id": "l1",
+                "sitter_name": "Sam"
+              }
+            ]
+          }
+        }
+      ]
     }
   ]
 }
