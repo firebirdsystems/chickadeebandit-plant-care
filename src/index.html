@@ -177,6 +177,7 @@
 import {
   hubAlert, memberColor, initial, esc, isAdult, hubConfirm,
   createShareHelper, activeShareLinks, SHARE_EXPIRY_CHOICES, DEFAULT_SHARE_EXPIRY_HOURS,
+  glyph,
 } from "/hub-sdk.js";
 import {
   formatDuration, statusColor, activityStatusFromLog, isoToLocalDateInput,
@@ -232,6 +233,7 @@ const shareUi = createShareUi({
   writableVerb: "tick off tasks",
   scopeHtml: () => "The page shows the sit’s dates and instructions, and each chosen plant’s tasks with their schedule, location and when each was last done. The sitter types their name when they tick a task; it shows in your plants’ history. <strong>Anyone with the link can see the instructions — add a password if they include a door code.</strong>",
   esc,
+  glyph,
   confirm: (message, opts) => hubConfirm({ message, ...opts, destructive: true }),
   writeText: (text) => navigator.clipboard.writeText(text),
   activeLinks: activeShareLinks,
@@ -440,7 +442,7 @@ function renderCard(activity) {
         ${lastByHtml}
         <div class="progress-track"><div class="progress-fill"></div></div>
       </div>
-      <button class="done-btn" data-activity-id="${esc(activity.id)}" onclick="markDone(this.dataset.activityId)">✓ Done</button>
+      <button class="done-btn" data-activity-id="${esc(activity.id)}" onclick="markDone(this.dataset.activityId)">${glyph("tick", { accent: "currentColor" })} Done</button>
     </div>`;
 }
 
@@ -452,18 +454,18 @@ function renderMain() {
     ? `<div class="plant-tabs">${plants.map(p => `<button class="plant-tab ${p.id === selectedId ? "active" : ""}" data-plant-id="${esc(p.id)}" onclick="selectPlant(this.dataset.plantId)">${esc(p.emoji)} ${esc(p.name)}</button>`).join("")}</div>` : "";
   let body = "";
   if (plants.length === 0) {
-    body = meIsAdmin ? `<div class="empty">No plants yet. Tap ⚙️ to add your first plant.</div>` : `<div class="empty">No plants configured yet.</div>`;
+    body = meIsAdmin ? `<div class="empty">No plants yet. Tap ${glyph("gear")} to add your first plant.</div>` : `<div class="empty">No plants configured yet.</div>`;
   } else if (curActs.length === 0) {
-    body = meIsAdmin ? `<div class="empty">No activities for ${esc(plant?.name ?? "this plant")}. Tap ⚙️ to add some.</div>` : `<div class="empty">No activities configured yet.</div>`;
+    body = meIsAdmin ? `<div class="empty">No activities for ${esc(plant?.name ?? "this plant")}. Tap ${glyph("gear")} to add some.</div>` : `<div class="empty">No activities configured yet.</div>`;
   } else {
     body = `<div class="card-grid">${curActs.map(renderCard).join("")}</div>`;
   }
   document.getElementById("root").innerHTML = `
     <header>
-      <div><h1>${plant ? `${esc(plant.emoji)} ${esc(plant.name)}` : "🪴 Plant Care"}</h1><div class="sub">${plant?.type ? esc(plant.type) : "Care tracker"}${plant?.location ? ` · ${esc(plant.location)}` : ""}</div></div>
+      <div><h1>${plant ? `${esc(plant.emoji)} ${esc(plant.name)}` : `${glyph("potted-plant")} Plant Care`}</h1><div class="sub">${plant?.type ? esc(plant.type) : "Care tracker"}${plant?.location ? ` · ${esc(plant.location)}` : ""}</div></div>
       ${meIsAdmin ? `<div style="display:flex;gap:6px">
-        ${DB ? `<button class="btn btn-icon" onclick="openSitters()" title="Sitter links" aria-label="Sitter links" data-testid="open-sitters">🧳</button>` : ""}
-        <button class="btn btn-icon" onclick="openSettings()" title="Settings">⚙️</button>
+        ${DB ? `<button class="btn btn-icon" onclick="openSitters()" title="Sitter links" aria-label="Sitter links" data-testid="open-sitters">${glyph("suitcase")}</button>` : ""}
+        <button class="btn btn-icon" onclick="openSettings()" title="Settings" aria-label="Settings">${glyph("gear")}</button>
       </div>` : ""}
     </header>
     ${tabsHtml}${body}`;
@@ -497,7 +499,7 @@ function renderSettingsModal() {
       </div>`;
   }).join("") || `<div class="empty-sm">No plants yet.</div>`;
   openModal(`
-    <div class="settings-header"><h3>⚙️ Plants &amp; Activities</h3><button class="btn btn-ghost btn-sm" onclick="closeModal()">Done</button></div>
+    <div class="settings-header"><h3>${glyph("gear")} Plants &amp; Activities</h3><button class="btn btn-ghost btn-sm" onclick="closeModal()">Done</button></div>
     ${plantsHtml}
     <div style="margin-top:14px"><button class="btn btn-primary btn-sm" onclick="openPlantForm()">+ Add Plant</button></div>`);
 }
@@ -656,7 +658,7 @@ function renderSittersModal() {
 
   openModal(`
     <div class="settings-header">
-      <h3>🧳 Sitter links</h3>
+      <h3>${glyph("suitcase")} Sitter links</h3>
       <button class="btn btn-ghost btn-sm" onclick="closeModal()">Done</button>
     </div>
     <p class="hint">Going away? Make a sit and send the sitter its link. They tick off tasks without an account, and each tick counts here just like yours. Archiving a sit closes its links.</p>
@@ -683,7 +685,7 @@ function openSitForm(id = null) {
         <input type="checkbox" class="sf-plant" data-testid="sit-plant" data-plant-id="${esc(p.id)}" value="${esc(p.id)}" ${chosen.has(p.id) ? "checked" : ""} />
         ${esc(p.emoji)} ${esc(p.name)}
       </label>`).join("")}
-    </div>`).join("") || `<div class="empty-sm">Add a plant first (⚙️).</div>`;
+    </div>`).join("") || `<div class="empty-sm">Add a plant first (${glyph("gear")}).</div>`;
 
   openModal(`
     <h3 style="margin-bottom:16px">${sit ? "Edit sit" : "New sit"}</h3>
