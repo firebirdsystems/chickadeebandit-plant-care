@@ -1,0 +1,1993 @@
+{
+  "seed": [
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+0 minutes'))",
+      "params": [
+        "perf-plant-01",
+        "Monstera",
+        "Tropical",
+        "🪴",
+        "Living room"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+0 minutes'))",
+      "params": [
+        "perf-act-01-water",
+        "perf-plant-01",
+        "Watering",
+        "💧",
+        7,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-33 hours','-11 minutes'))",
+      "params": [
+        "perf-log-001",
+        "perf-act-01-water",
+        "perf-plant-01",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-206 hours','-22 minutes'))",
+      "params": [
+        "perf-log-002",
+        "perf-act-01-water",
+        "perf-plant-01",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-372 hours','-33 minutes'))",
+      "params": [
+        "perf-log-003",
+        "perf-act-01-water",
+        "perf-plant-01",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+0 minutes'))",
+      "params": [
+        "perf-act-01-feed",
+        "perf-plant-01",
+        "Fertilizing",
+        "🧪",
+        30,
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-432 hours','-44 minutes'))",
+      "params": [
+        "perf-log-004",
+        "perf-act-01-feed",
+        "perf-plant-01",
+        "{{child2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1157 hours','-5 minutes'))",
+      "params": [
+        "perf-log-005",
+        "perf-act-01-feed",
+        "perf-plant-01",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+1 minutes'))",
+      "params": [
+        "perf-plant-02",
+        "Basil",
+        "Herb",
+        "🌿",
+        "Kitchen"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+1 minutes'))",
+      "params": [
+        "perf-act-02-water",
+        "perf-plant-02",
+        "Watering",
+        "💧",
+        2,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-28 hours','-16 minutes'))",
+      "params": [
+        "perf-log-006",
+        "perf-act-02-water",
+        "perf-plant-02",
+        "{{adult2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-81 hours','-27 minutes'))",
+      "params": [
+        "perf-log-007",
+        "perf-act-02-water",
+        "perf-plant-02",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-127 hours','-38 minutes'))",
+      "params": [
+        "perf-log-008",
+        "perf-act-02-water",
+        "perf-plant-02",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-173 hours','-49 minutes'))",
+      "params": [
+        "perf-log-009",
+        "perf-act-02-water",
+        "perf-plant-02",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+2 minutes'))",
+      "params": [
+        "perf-plant-03",
+        "Boston fern",
+        "Fern",
+        "🌿",
+        "Bathroom"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+2 minutes'))",
+      "params": [
+        "perf-act-03-water",
+        "perf-plant-03",
+        "Watering",
+        "💧",
+        4,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-105 hours','-10 minutes'))",
+      "params": [
+        "perf-log-010",
+        "perf-act-03-water",
+        "perf-plant-03",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-206 hours','-21 minutes'))",
+      "params": [
+        "perf-log-011",
+        "perf-act-03-water",
+        "perf-plant-03",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-300 hours','-32 minutes'))",
+      "params": [
+        "perf-log-012",
+        "perf-act-03-water",
+        "perf-plant-03",
+        "{{child2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+2 minutes'))",
+      "params": [
+        "perf-act-03-feed",
+        "perf-plant-03",
+        "Fertilizing",
+        "🧪",
+        45,
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-972 hours','-43 minutes'))",
+      "params": [
+        "perf-log-013",
+        "perf-act-03-feed",
+        "perf-plant-03",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2057 hours','-4 minutes'))",
+      "params": [
+        "perf-log-014",
+        "perf-act-03-feed",
+        "perf-plant-03",
+        "{{adult2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+2 minutes'))",
+      "params": [
+        "perf-act-03-mist",
+        "perf-plant-03",
+        "Misting",
+        "💦",
+        1,
+        2
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-38 hours','-15 minutes'))",
+      "params": [
+        "perf-log-015",
+        "perf-act-03-mist",
+        "perf-plant-03",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-67 hours','-26 minutes'))",
+      "params": [
+        "perf-log-016",
+        "perf-act-03-mist",
+        "perf-plant-03",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-89 hours','-37 minutes'))",
+      "params": [
+        "perf-log-017",
+        "perf-act-03-mist",
+        "perf-plant-03",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+3 minutes'))",
+      "params": [
+        "perf-plant-04",
+        "Snake plant",
+        "Succulent",
+        "🌱",
+        "Hallway"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+3 minutes'))",
+      "params": [
+        "perf-act-04-water",
+        "perf-plant-04",
+        "Watering",
+        "💧",
+        14,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-302 hours','-48 minutes'))",
+      "params": [
+        "perf-log-018",
+        "perf-act-04-water",
+        "perf-plant-04",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-643 hours','-9 minutes'))",
+      "params": [
+        "perf-log-019",
+        "perf-act-04-water",
+        "perf-plant-04",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-977 hours','-20 minutes'))",
+      "params": [
+        "perf-log-020",
+        "perf-act-04-water",
+        "perf-plant-04",
+        "{{child2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+3 minutes'))",
+      "params": [
+        "perf-act-04-feed",
+        "perf-plant-04",
+        "Fertilizing",
+        "🧪",
+        60,
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2304 hours','-31 minutes'))",
+      "params": [
+        "perf-log-021",
+        "perf-act-04-feed",
+        "perf-plant-04",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+4 minutes'))",
+      "params": [
+        "perf-plant-05",
+        "Fiddle leaf fig",
+        "Tropical",
+        "🌳",
+        "Living room"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+4 minutes'))",
+      "params": [
+        "perf-act-05-water",
+        "perf-plant-05",
+        "Watering",
+        "💧",
+        7,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-268 hours','-3 minutes'))",
+      "params": [
+        "perf-log-023",
+        "perf-act-05-water",
+        "perf-plant-05",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-441 hours','-14 minutes'))",
+      "params": [
+        "perf-log-024",
+        "perf-act-05-water",
+        "perf-plant-05",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-607 hours','-25 minutes'))",
+      "params": [
+        "perf-log-025",
+        "perf-act-05-water",
+        "perf-plant-05",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+4 minutes'))",
+      "params": [
+        "perf-act-05-feed",
+        "perf-plant-05",
+        "Fertilizing",
+        "🧪",
+        30,
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-288 hours','-36 minutes'))",
+      "params": [
+        "perf-log-026",
+        "perf-act-05-feed",
+        "perf-plant-05",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1013 hours','-47 minutes'))",
+      "params": [
+        "perf-log-027",
+        "perf-act-05-feed",
+        "perf-plant-05",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+4 minutes'))",
+      "params": [
+        "perf-act-05-prune",
+        "perf-plant-05",
+        "Pruning",
+        "✂️",
+        60,
+        2
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-288 hours','-8 minutes'))",
+      "params": [
+        "perf-log-028",
+        "perf-act-05-prune",
+        "perf-plant-05",
+        "{{child2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+5 minutes'))",
+      "params": [
+        "perf-plant-06",
+        "Aloe",
+        "Succulent",
+        "🌵",
+        "Kitchen"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+5 minutes'))",
+      "params": [
+        "perf-act-06-water",
+        "perf-plant-06",
+        "Watering",
+        "💧",
+        14,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-134 hours','-19 minutes'))",
+      "params": [
+        "perf-log-029",
+        "perf-act-06-water",
+        "perf-plant-06",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-475 hours','-30 minutes'))",
+      "params": [
+        "perf-log-030",
+        "perf-act-06-water",
+        "perf-plant-06",
+        "{{adult2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-809 hours','-41 minutes'))",
+      "params": [
+        "perf-log-031",
+        "perf-act-06-water",
+        "perf-plant-06",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+6 minutes'))",
+      "params": [
+        "perf-plant-07",
+        "Peace lily",
+        "Flowering",
+        "🌸",
+        "Bedroom"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+6 minutes'))",
+      "params": [
+        "perf-act-07-water",
+        "perf-plant-07",
+        "Watering",
+        "💧",
+        5,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-24 hours','-2 minutes'))",
+      "params": [
+        "perf-log-032",
+        "perf-act-07-water",
+        "perf-plant-07",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-149 hours','-13 minutes'))",
+      "params": [
+        "perf-log-033",
+        "perf-act-07-water",
+        "perf-plant-07",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-267 hours','-24 minutes'))",
+      "params": [
+        "perf-log-034",
+        "perf-act-07-water",
+        "perf-plant-07",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+6 minutes'))",
+      "params": [
+        "perf-act-07-feed",
+        "perf-plant-07",
+        "Fertilizing",
+        "🧪",
+        30,
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-432 hours','-35 minutes'))",
+      "params": [
+        "perf-log-035",
+        "perf-act-07-feed",
+        "perf-plant-07",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1157 hours','-46 minutes'))",
+      "params": [
+        "perf-log-036",
+        "perf-act-07-feed",
+        "perf-plant-07",
+        "{{child2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+7 minutes'))",
+      "params": [
+        "perf-plant-08",
+        "Rosemary",
+        "Herb",
+        "🌿",
+        "Balcony"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+7 minutes'))",
+      "params": [
+        "perf-act-08-water",
+        "perf-plant-08",
+        "Watering",
+        "💧",
+        3,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-43 hours','-7 minutes'))",
+      "params": [
+        "perf-log-037",
+        "perf-act-08-water",
+        "perf-plant-08",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-120 hours','-18 minutes'))",
+      "params": [
+        "perf-log-038",
+        "perf-act-08-water",
+        "perf-plant-08",
+        "{{adult2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-190 hours','-29 minutes'))",
+      "params": [
+        "perf-log-039",
+        "perf-act-08-water",
+        "perf-plant-08",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-260 hours','-40 minutes'))",
+      "params": [
+        "perf-log-040",
+        "perf-act-08-water",
+        "perf-plant-08",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+8 minutes'))",
+      "params": [
+        "perf-plant-09",
+        "Orchid",
+        "Flowering",
+        "🌺",
+        "Office"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+8 minutes'))",
+      "params": [
+        "perf-act-09-water",
+        "perf-plant-09",
+        "Watering",
+        "💧",
+        7,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-184 hours','-1 minutes'))",
+      "params": [
+        "perf-log-041",
+        "perf-act-09-water",
+        "perf-plant-09",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-357 hours','-12 minutes'))",
+      "params": [
+        "perf-log-042",
+        "perf-act-09-water",
+        "perf-plant-09",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-523 hours','-23 minutes'))",
+      "params": [
+        "perf-log-043",
+        "perf-act-09-water",
+        "perf-plant-09",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+8 minutes'))",
+      "params": [
+        "perf-act-09-feed",
+        "perf-plant-09",
+        "Fertilizing",
+        "🧪",
+        21,
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-453 hours','-34 minutes'))",
+      "params": [
+        "perf-log-044",
+        "perf-act-09-feed",
+        "perf-plant-09",
+        "{{child2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-962 hours','-45 minutes'))",
+      "params": [
+        "perf-log-045",
+        "perf-act-09-feed",
+        "perf-plant-09",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+8 minutes'))",
+      "params": [
+        "perf-act-09-mist",
+        "perf-plant-09",
+        "Misting",
+        "💦",
+        1,
+        2
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-38 hours','-6 minutes'))",
+      "params": [
+        "perf-log-046",
+        "perf-act-09-mist",
+        "perf-plant-09",
+        "{{adult2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-67 hours','-17 minutes'))",
+      "params": [
+        "perf-log-047",
+        "perf-act-09-mist",
+        "perf-plant-09",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-89 hours','-28 minutes'))",
+      "params": [
+        "perf-log-048",
+        "perf-act-09-mist",
+        "perf-plant-09",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+9 minutes'))",
+      "params": [
+        "perf-plant-10",
+        "Pothos",
+        "Vine",
+        "🍀",
+        "Office"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+9 minutes'))",
+      "params": [
+        "perf-act-10-water",
+        "perf-plant-10",
+        "Watering",
+        "💧",
+        7,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-151 hours','-39 minutes'))",
+      "params": [
+        "perf-log-049",
+        "perf-act-10-water",
+        "perf-plant-10",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-324 hours','-0 minutes'))",
+      "params": [
+        "perf-log-050",
+        "perf-act-10-water",
+        "perf-plant-10",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-490 hours','-11 minutes'))",
+      "params": [
+        "perf-log-051",
+        "perf-act-10-water",
+        "perf-plant-10",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+9 minutes'))",
+      "params": [
+        "perf-act-10-feed",
+        "perf-plant-10",
+        "Fertilizing",
+        "🧪",
+        45,
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1728 hours','-22 minutes'))",
+      "params": [
+        "perf-log-052",
+        "perf-act-10-feed",
+        "perf-plant-10",
+        "{{child2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2813 hours','-33 minutes'))",
+      "params": [
+        "perf-log-053",
+        "perf-act-10-feed",
+        "perf-plant-10",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+10 minutes'))",
+      "params": [
+        "perf-plant-11",
+        "Tomato seedlings",
+        "Vegetable",
+        "🌱",
+        "Balcony"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+10 minutes'))",
+      "params": [
+        "perf-act-11-water",
+        "perf-plant-11",
+        "Watering",
+        "💧",
+        1,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-38 hours','-44 minutes'))",
+      "params": [
+        "perf-log-054",
+        "perf-act-11-water",
+        "perf-plant-11",
+        "{{adult2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-67 hours','-5 minutes'))",
+      "params": [
+        "perf-log-055",
+        "perf-act-11-water",
+        "perf-plant-11",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-89 hours','-16 minutes'))",
+      "params": [
+        "perf-log-056",
+        "perf-act-11-water",
+        "perf-plant-11",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-111 hours','-27 minutes'))",
+      "params": [
+        "perf-log-057",
+        "perf-act-11-water",
+        "perf-plant-11",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+10 minutes'))",
+      "params": [
+        "perf-act-11-feed",
+        "perf-plant-11",
+        "Fertilizing",
+        "🧪",
+        14,
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-134 hours','-38 minutes'))",
+      "params": [
+        "perf-log-058",
+        "perf-act-11-feed",
+        "perf-plant-11",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-475 hours','-49 minutes'))",
+      "params": [
+        "perf-log-059",
+        "perf-act-11-feed",
+        "perf-plant-11",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+11 minutes'))",
+      "params": [
+        "perf-plant-12",
+        "Jade plant",
+        "Succulent",
+        "🪴",
+        "Bedroom"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+11 minutes'))",
+      "params": [
+        "perf-act-12-water",
+        "perf-plant-12",
+        "Watering",
+        "💧",
+        14,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-134 hours','-10 minutes'))",
+      "params": [
+        "perf-log-060",
+        "perf-act-12-water",
+        "perf-plant-12",
+        "{{child2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-475 hours','-21 minutes'))",
+      "params": [
+        "perf-log-061",
+        "perf-act-12-water",
+        "perf-plant-12",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-809 hours','-32 minutes'))",
+      "params": [
+        "perf-log-062",
+        "perf-act-12-water",
+        "perf-plant-12",
+        "{{adult2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+11 minutes'))",
+      "params": [
+        "perf-act-12-feed",
+        "perf-plant-12",
+        "Fertilizing",
+        "🧪",
+        60,
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-288 hours','-43 minutes'))",
+      "params": [
+        "perf-log-063",
+        "perf-act-12-feed",
+        "perf-plant-12",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1733 hours','-4 minutes'))",
+      "params": [
+        "perf-log-064",
+        "perf-act-12-feed",
+        "perf-plant-12",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+11 minutes'))",
+      "params": [
+        "perf-act-12-prune",
+        "perf-plant-12",
+        "Pruning",
+        "✂️",
+        60,
+        2
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-864 hours','-15 minutes'))",
+      "params": [
+        "perf-log-065",
+        "perf-act-12-prune",
+        "perf-plant-12",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+12 minutes'))",
+      "params": [
+        "perf-plant-13",
+        "Spider plant",
+        "Tropical",
+        "🌿",
+        "Kids' room"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+12 minutes'))",
+      "params": [
+        "perf-act-13-water",
+        "perf-plant-13",
+        "Watering",
+        "💧",
+        6,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-28 hours','-26 minutes'))",
+      "params": [
+        "perf-log-066",
+        "perf-act-13-water",
+        "perf-plant-13",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-177 hours','-37 minutes'))",
+      "params": [
+        "perf-log-067",
+        "perf-act-13-water",
+        "perf-plant-13",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-319 hours','-48 minutes'))",
+      "params": [
+        "perf-log-068",
+        "perf-act-13-water",
+        "perf-plant-13",
+        "{{child2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+12 minutes'))",
+      "params": [
+        "perf-act-13-feed",
+        "perf-plant-13",
+        "Fertilizing",
+        "🧪",
+        30,
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-432 hours','-9 minutes'))",
+      "params": [
+        "perf-log-069",
+        "perf-act-13-feed",
+        "perf-plant-13",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1157 hours','-20 minutes'))",
+      "params": [
+        "perf-log-070",
+        "perf-act-13-feed",
+        "perf-plant-13",
+        "{{adult2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+13 minutes'))",
+      "params": [
+        "perf-plant-14",
+        "Lemon tree",
+        "Citrus",
+        "🌳",
+        "Balcony"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+13 minutes'))",
+      "params": [
+        "perf-act-14-water",
+        "perf-plant-14",
+        "Watering",
+        "💧",
+        4,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-57 hours','-31 minutes'))",
+      "params": [
+        "perf-log-071",
+        "perf-act-14-water",
+        "perf-plant-14",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-158 hours','-42 minutes'))",
+      "params": [
+        "perf-log-072",
+        "perf-act-14-water",
+        "perf-plant-14",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-252 hours','-3 minutes'))",
+      "params": [
+        "perf-log-073",
+        "perf-act-14-water",
+        "perf-plant-14",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+13 minutes'))",
+      "params": [
+        "perf-act-14-feed",
+        "perf-plant-14",
+        "Fertilizing",
+        "🧪",
+        30,
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-792 hours','-14 minutes'))",
+      "params": [
+        "perf-log-074",
+        "perf-act-14-feed",
+        "perf-plant-14",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1517 hours','-25 minutes'))",
+      "params": [
+        "perf-log-075",
+        "perf-act-14-feed",
+        "perf-plant-14",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+14 minutes'))",
+      "params": [
+        "perf-plant-15",
+        "Christmas cactus",
+        "Succulent",
+        "🌵",
+        "Dining room"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+14 minutes'))",
+      "params": [
+        "perf-act-15-water",
+        "perf-plant-15",
+        "Watering",
+        "💧",
+        10,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-264 hours','-36 minutes'))",
+      "params": [
+        "perf-log-076",
+        "perf-act-15-water",
+        "perf-plant-15",
+        "{{child2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-509 hours','-47 minutes'))",
+      "params": [
+        "perf-log-077",
+        "perf-act-15-water",
+        "perf-plant-15",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-747 hours','-8 minutes'))",
+      "params": [
+        "perf-log-078",
+        "perf-act-15-water",
+        "perf-plant-15",
+        "{{adult2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+14 minutes'))",
+      "params": [
+        "perf-act-15-mist",
+        "perf-plant-15",
+        "Misting",
+        "💦",
+        1,
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-21 hours','-19 minutes'))",
+      "params": [
+        "perf-log-079",
+        "perf-act-15-mist",
+        "perf-plant-15",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-50 hours','-30 minutes'))",
+      "params": [
+        "perf-log-080",
+        "perf-act-15-mist",
+        "perf-plant-15",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-72 hours','-41 minutes'))",
+      "params": [
+        "perf-log-081",
+        "perf-act-15-mist",
+        "perf-plant-15",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+15 minutes'))",
+      "params": [
+        "perf-plant-16",
+        "Mint",
+        "Herb",
+        "🍀",
+        "Kitchen"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+15 minutes'))",
+      "params": [
+        "perf-act-16-water",
+        "perf-plant-16",
+        "Watering",
+        "💧",
+        2,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-43 hours','-2 minutes'))",
+      "params": [
+        "perf-log-082",
+        "perf-act-16-water",
+        "perf-plant-16",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-96 hours','-13 minutes'))",
+      "params": [
+        "perf-log-083",
+        "perf-act-16-water",
+        "perf-plant-16",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-142 hours','-24 minutes'))",
+      "params": [
+        "perf-log-084",
+        "perf-act-16-water",
+        "perf-plant-16",
+        "{{child2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-188 hours','-35 minutes'))",
+      "params": [
+        "perf-log-085",
+        "perf-act-16-water",
+        "perf-plant-16",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+16 minutes'))",
+      "params": [
+        "perf-plant-17",
+        "Rubber plant",
+        "Tropical",
+        "🪴",
+        "Hallway"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+16 minutes'))",
+      "params": [
+        "perf-act-17-water",
+        "perf-plant-17",
+        "Watering",
+        "💧",
+        9,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-345 hours','-46 minutes'))",
+      "params": [
+        "perf-log-086",
+        "perf-act-17-water",
+        "perf-plant-17",
+        "{{adult2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-566 hours','-7 minutes'))",
+      "params": [
+        "perf-log-087",
+        "perf-act-17-water",
+        "perf-plant-17",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-780 hours','-18 minutes'))",
+      "params": [
+        "perf-log-088",
+        "perf-act-17-water",
+        "perf-plant-17",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+16 minutes'))",
+      "params": [
+        "perf-act-17-feed",
+        "perf-plant-17",
+        "Fertilizing",
+        "🧪",
+        45,
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-432 hours','-29 minutes'))",
+      "params": [
+        "perf-log-089",
+        "perf-act-17-feed",
+        "perf-plant-17",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1517 hours','-40 minutes'))",
+      "params": [
+        "perf-log-090",
+        "perf-act-17-feed",
+        "perf-plant-17",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__plants (id, name, type, emoji, location, created_at) VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+17 minutes'))",
+      "params": [
+        "perf-plant-18",
+        "African violet",
+        "Flowering",
+        "🌸",
+        "Dining room"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+17 minutes'))",
+      "params": [
+        "perf-act-18-water",
+        "perf-plant-18",
+        "Watering",
+        "💧",
+        5,
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-48 hours','-1 minutes'))",
+      "params": [
+        "perf-log-091",
+        "perf-act-18-water",
+        "perf-plant-18",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-173 hours','-12 minutes'))",
+      "params": [
+        "perf-log-092",
+        "perf-act-18-water",
+        "perf-plant-18",
+        "{{child2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-291 hours','-23 minutes'))",
+      "params": [
+        "perf-log-093",
+        "perf-act-18-water",
+        "perf-plant-18",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__activities (id, plant_id, name, icon, interval_days, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-150 days','+17 minutes'))",
+      "params": [
+        "perf-act-18-feed",
+        "perf-plant-18",
+        "Fertilizing",
+        "🧪",
+        21,
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-100 hours','-34 minutes'))",
+      "params": [
+        "perf-log-094",
+        "perf-act-18-feed",
+        "perf-plant-18",
+        "{{adult2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-609 hours','-45 minutes'))",
+      "params": [
+        "perf-log-095",
+        "perf-act-18-feed",
+        "perf-plant-18",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sits (id, title, instructions, starts_on, ends_on, plant_ids, archived, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days'))",
+      "params": [
+        "perf-sit-01",
+        "Plants, long weekend",
+        "Watering can is under the kitchen sink. The balcony pots dry out fastest.",
+        "{{date:5}}",
+        "{{date:9}}",
+        "[\"perf-plant-02\", \"perf-plant-06\", \"perf-plant-08\", \"perf-plant-11\", \"perf-plant-14\", \"perf-plant-16\"]",
+        0,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-01",
+        "perf-sit-01",
+        "perf-act-02-water",
+        "perf-plant-02",
+        "Basil · Watering",
+        "Every 2 days · Kitchen",
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-02",
+        "perf-sit-01",
+        "perf-act-06-water",
+        "perf-plant-06",
+        "Aloe · Watering",
+        "Every 14 days · Kitchen",
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-03",
+        "perf-sit-01",
+        "perf-act-16-water",
+        "perf-plant-16",
+        "Mint · Watering",
+        "Every 2 days · Kitchen",
+        2
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-04",
+        "perf-sit-01",
+        "perf-act-08-water",
+        "perf-plant-08",
+        "Rosemary · Watering",
+        "Every 3 days · Balcony",
+        3
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-05",
+        "perf-sit-01",
+        "perf-act-11-water",
+        "perf-plant-11",
+        "Tomato seedlings · Watering",
+        "Every day · Balcony",
+        4
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-06",
+        "perf-sit-01",
+        "perf-act-11-feed",
+        "perf-plant-11",
+        "Tomato seedlings · Fertilizing",
+        "Every 14 days · Balcony",
+        5
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-07",
+        "perf-sit-01",
+        "perf-act-14-water",
+        "perf-plant-14",
+        "Lemon tree · Watering",
+        "Every 4 days · Balcony",
+        6
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-08",
+        "perf-sit-01",
+        "perf-act-14-feed",
+        "perf-plant-14",
+        "Lemon tree · Fertilizing",
+        "Every 30 days · Balcony",
+        7
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sits (id, title, instructions, starts_on, ends_on, plant_ids, archived, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-75 days'))",
+      "params": [
+        "perf-sit-02",
+        "Plants, summer trip",
+        "Herbs every other day, everything else once a week. Don't overwater the succulents.",
+        "{{date:-70}}",
+        "{{date:-56}}",
+        "[\"perf-plant-01\", \"perf-plant-02\", \"perf-plant-05\", \"perf-plant-06\", \"perf-plant-07\", \"perf-plant-09\", \"perf-plant-10\", \"perf-plant-12\", \"perf-plant-16\"]",
+        0,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-09",
+        "perf-sit-02",
+        "perf-act-01-water",
+        "perf-plant-01",
+        "Monstera · Watering",
+        "Every 7 days · Living room",
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at, sit_id, sitter_name, task_label) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-57 days','-0 minutes'), ?, ?, ?)",
+      "params": [
+        "perf-log-096",
+        "perf-act-01-water",
+        "perf-plant-01",
+        "sitter",
+        "perf-sit-02",
+        "Dana next door",
+        "Monstera · Watering"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-10",
+        "perf-sit-02",
+        "perf-act-01-feed",
+        "perf-plant-01",
+        "Monstera · Fertilizing",
+        "Every 30 days · Living room",
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at, sit_id, sitter_name, task_label) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-58 days','-31 minutes'), ?, ?, ?)",
+      "params": [
+        "perf-log-097",
+        "perf-act-01-feed",
+        "perf-plant-01",
+        "sitter",
+        "perf-sit-02",
+        "Dana next door",
+        "Monstera · Fertilizing"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-11",
+        "perf-sit-02",
+        "perf-act-05-water",
+        "perf-plant-05",
+        "Fiddle leaf fig · Watering",
+        "Every 7 days · Living room",
+        2
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at, sit_id, sitter_name, task_label) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-59 days','-62 minutes'), ?, ?, ?)",
+      "params": [
+        "perf-log-098",
+        "perf-act-05-water",
+        "perf-plant-05",
+        "sitter",
+        "perf-sit-02",
+        "Dana next door",
+        "Fiddle leaf fig · Watering"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-12",
+        "perf-sit-02",
+        "perf-act-05-feed",
+        "perf-plant-05",
+        "Fiddle leaf fig · Fertilizing",
+        "Every 30 days · Living room",
+        3
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at, sit_id, sitter_name, task_label) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-60 days','-93 minutes'), ?, ?, ?)",
+      "params": [
+        "perf-log-099",
+        "perf-act-05-feed",
+        "perf-plant-05",
+        "sitter",
+        "perf-sit-02",
+        "Dana next door",
+        "Fiddle leaf fig · Fertilizing"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-13",
+        "perf-sit-02",
+        "perf-act-05-prune",
+        "perf-plant-05",
+        "Fiddle leaf fig · Pruning",
+        "Every 60 days · Living room",
+        4
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at, sit_id, sitter_name, task_label) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-61 days','-124 minutes'), ?, ?, ?)",
+      "params": [
+        "perf-log-100",
+        "perf-act-05-prune",
+        "perf-plant-05",
+        "sitter",
+        "perf-sit-02",
+        "Dana next door",
+        "Fiddle leaf fig · Pruning"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-14",
+        "perf-sit-02",
+        "perf-act-02-water",
+        "perf-plant-02",
+        "Basil · Watering",
+        "Every 2 days · Kitchen",
+        5
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at, sit_id, sitter_name, task_label) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-62 days','-155 minutes'), ?, ?, ?)",
+      "params": [
+        "perf-log-101",
+        "perf-act-02-water",
+        "perf-plant-02",
+        "sitter",
+        "perf-sit-02",
+        "Dana next door",
+        "Basil · Watering"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-15",
+        "perf-sit-02",
+        "perf-act-06-water",
+        "perf-plant-06",
+        "Aloe · Watering",
+        "Every 14 days · Kitchen",
+        6
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at, sit_id, sitter_name, task_label) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-63 days','-186 minutes'), ?, ?, ?)",
+      "params": [
+        "perf-log-102",
+        "perf-act-06-water",
+        "perf-plant-06",
+        "sitter",
+        "perf-sit-02",
+        "Dana next door",
+        "Aloe · Watering"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-16",
+        "perf-sit-02",
+        "perf-act-16-water",
+        "perf-plant-16",
+        "Mint · Watering",
+        "Every 2 days · Kitchen",
+        7
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at, sit_id, sitter_name, task_label) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-64 days','-217 minutes'), ?, ?, ?)",
+      "params": [
+        "perf-log-103",
+        "perf-act-16-water",
+        "perf-plant-16",
+        "sitter",
+        "perf-sit-02",
+        "Dana next door",
+        "Mint · Watering"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-17",
+        "perf-sit-02",
+        "perf-act-07-water",
+        "perf-plant-07",
+        "Peace lily · Watering",
+        "Every 5 days · Bedroom",
+        8
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at, sit_id, sitter_name, task_label) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-65 days','-248 minutes'), ?, ?, ?)",
+      "params": [
+        "perf-log-104",
+        "perf-act-07-water",
+        "perf-plant-07",
+        "sitter",
+        "perf-sit-02",
+        "Dana next door",
+        "Peace lily · Watering"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-18",
+        "perf-sit-02",
+        "perf-act-07-feed",
+        "perf-plant-07",
+        "Peace lily · Fertilizing",
+        "Every 30 days · Bedroom",
+        9
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at, sit_id, sitter_name, task_label) VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-66 days','-279 minutes'), ?, ?, ?)",
+      "params": [
+        "perf-log-105",
+        "perf-act-07-feed",
+        "perf-plant-07",
+        "sitter",
+        "perf-sit-02",
+        "Dana next door",
+        "Peace lily · Fertilizing"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-19",
+        "perf-sit-02",
+        "perf-act-12-water",
+        "perf-plant-12",
+        "Jade plant · Watering",
+        "Every 14 days · Bedroom",
+        10
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-20",
+        "perf-sit-02",
+        "perf-act-12-feed",
+        "perf-plant-12",
+        "Jade plant · Fertilizing",
+        "Every 60 days · Bedroom",
+        11
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-21",
+        "perf-sit-02",
+        "perf-act-12-prune",
+        "perf-plant-12",
+        "Jade plant · Pruning",
+        "Every 60 days · Bedroom",
+        12
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-22",
+        "perf-sit-02",
+        "perf-act-09-water",
+        "perf-plant-09",
+        "Orchid · Watering",
+        "Every 7 days · Office",
+        13
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-23",
+        "perf-sit-02",
+        "perf-act-09-feed",
+        "perf-plant-09",
+        "Orchid · Fertilizing",
+        "Every 21 days · Office",
+        14
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-24",
+        "perf-sit-02",
+        "perf-act-09-mist",
+        "perf-plant-09",
+        "Orchid · Misting",
+        "Every day · Office",
+        15
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-25",
+        "perf-sit-02",
+        "perf-act-10-water",
+        "perf-plant-10",
+        "Pothos · Watering",
+        "Every 7 days · Office",
+        16
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-26",
+        "perf-sit-02",
+        "perf-act-10-feed",
+        "perf-plant-10",
+        "Pothos · Fertilizing",
+        "Every 45 days · Office",
+        17
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sits (id, title, instructions, starts_on, ends_on, plant_ids, archived, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-195 days'))",
+      "params": [
+        "perf-sit-03",
+        "Plants, spring break",
+        "Just the hallway and dining room.",
+        "{{date:-190}}",
+        "{{date:-184}}",
+        "[\"perf-plant-04\", \"perf-plant-15\", \"perf-plant-17\", \"perf-plant-18\"]",
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-27",
+        "perf-sit-03",
+        "perf-act-04-water",
+        "perf-plant-04",
+        "Snake plant · Watering",
+        "Every 14 days · Hallway",
+        0
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-28",
+        "perf-sit-03",
+        "perf-act-04-feed",
+        "perf-plant-04",
+        "Snake plant · Fertilizing",
+        "Every 60 days · Hallway",
+        1
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-29",
+        "perf-sit-03",
+        "perf-act-17-water",
+        "perf-plant-17",
+        "Rubber plant · Watering",
+        "Every 9 days · Hallway",
+        2
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-30",
+        "perf-sit-03",
+        "perf-act-17-feed",
+        "perf-plant-17",
+        "Rubber plant · Fertilizing",
+        "Every 45 days · Hallway",
+        3
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-31",
+        "perf-sit-03",
+        "perf-act-15-water",
+        "perf-plant-15",
+        "Christmas cactus · Watering",
+        "Every 10 days · Dining room",
+        4
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-32",
+        "perf-sit-03",
+        "perf-act-15-mist",
+        "perf-plant-15",
+        "Christmas cactus · Misting",
+        "Every day · Dining room",
+        5
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-33",
+        "perf-sit-03",
+        "perf-act-18-water",
+        "perf-plant-18",
+        "African violet · Watering",
+        "Every 5 days · Dining room",
+        6
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_plant_care__sit_tasks (id, sit_id, activity_id, plant_id, label, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-sittask-34",
+        "perf-sit-03",
+        "perf-act-18-feed",
+        "perf-plant-18",
+        "African violet · Fertilizing",
+        "Every 21 days · Dining room",
+        7
+      ]
+    }
+  ]
+}

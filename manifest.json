@@ -27,7 +27,10 @@
   "storage": "db",
   "preload": {
     "plants": {"sql": "SELECT * FROM app_plant_care__plants ORDER BY created_at"},
-    "activities": {"sql": "SELECT * FROM app_plant_care__activities ORDER BY plant_id, sort_order, created_at"}
+    "activities": {"sql": "SELECT * FROM app_plant_care__activities ORDER BY plant_id, sort_order, created_at"},
+    "last_logs": {
+      "sql": "SELECT l.* FROM app_plant_care__logs l INNER JOIN (SELECT activity_id, MAX(done_at) AS mx FROM app_plant_care__logs GROUP BY activity_id) m ON l.activity_id = m.activity_id AND l.done_at = m.mx"
+    }
   },
   "db_encryption": "off",
   "db_plaintext_columns": ["archived", "sitter_name", "task_label", "label", "detail", "sort_order", "starts_on", "ends_on"],

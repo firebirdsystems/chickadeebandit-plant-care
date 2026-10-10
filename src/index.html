@@ -280,13 +280,14 @@ async function loadActivities() {
   const { rows } = await db(`SELECT * FROM app_plant_care__activities ORDER BY plant_id, sort_order, created_at`);
   activities = rows ?? [];
 }
+// The latest log of EVERY activity, not just the selected plant's. It takes no
+// params, so it does not have to wait for the plants to come back to know
+// which ids to ask about, the hub can answer it from the document
+// (manifest.preload `last_logs`; this text must match it exactly), and
+// switching plants needs nothing new.
 async function loadLastLogs() {
+  const { rows } = await db("SELECT l.* FROM app_plant_care__logs l INNER JOIN (SELECT activity_id, MAX(done_at) AS mx FROM app_plant_care__logs GROUP BY activity_id) m ON l.activity_id = m.activity_id AND l.done_at = m.mx");
   lastLogs = {};
-  const curActs = activities.filter(a => a.plant_id === selectedId);
-  if (!curActs.length) return;
-  const ids = curActs.map(a => a.id);
-  const ph  = ids.map(() => "?").join(",");
-  const { rows } = await db(`SELECT l.* FROM app_plant_care__logs l INNER JOIN (SELECT activity_id, MAX(done_at) AS mx FROM app_plant_care__logs WHERE activity_id IN (${ph}) GROUP BY activity_id) m ON l.activity_id = m.activity_id AND l.done_at = m.mx`, ids);
   for (const r of rows ?? []) lastLogs[r.activity_id] = r;
 }
 
@@ -359,8 +360,9 @@ async function deletePlant(id) {
   // longer exists — invisible to the UI and to the recurring_due digest.
   await db(`DELETE FROM app_plant_care__plants WHERE id = ?`, [id]);
   plants = plants.filter(p => p.id !== id);
+  for (const a of activities) if (a.plant_id === id) delete lastLogs[a.id];
   activities = activities.filter(a => a.plant_id !== id);
-  if (selectedId === id) { selectedId = plants[0]?.id ?? null; lastLogs = {}; if (selectedId) await loadLastLogs(); }
+  if (selectedId === id) selectedId = plants[0]?.id ?? null;
   return true;
 }
 
@@ -573,7 +575,7 @@ window.openPlantForm  = openPlantForm;
 window.openActForm    = openActForm;
 window.closeModal     = closeModal;
 window.markDone       = markDone;
-window.selectPlant    = async id => { selectedId = id; await loadActivities(); await loadLastLogs(); renderMain(); };
+window.selectPlant    = id => { selectedId = id; renderMain(); };
 
 // ─── Sits ─────────────────────────────────────────────────────────────────
 function todayStr() { return isoToLocalDateInput(new Date().toISOString()); }
@@ -871,7 +873,7 @@ function handleDeepLink() {
 
 (async () => {
   await loadMembers();
-  if (DB) { await initDb(); await Promise.all([loadPlants(), loadActivities()]); if (plants.length > 0) selectedId = plants[0].id; await loadLastLogs(); }
+  if (DB) { await initDb(); await Promise.all([loadPlants(), loadActivities(), loadLastLogs()]); if (plants.length > 0) selectedId = plants[0].id; }
   renderMain();
   handleDeepLink();
   // Keep open sits' checklists current with the plants' activities. Off the
