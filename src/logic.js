@@ -250,7 +250,8 @@ export const CARE_SNAPSHOT_STATEMENTS = Object.freeze([
 export function parseCareSnapshot(results) {
   const rows = (results ?? []).map(r => r?.rows);
   if (rows.length !== CARE_SNAPSHOT_STATEMENTS.length || !rows.every(Array.isArray)) {
-    throw new Error("Could not read your plants — try again.");
+    // Worded for the reader, and marked so the page shows it as it is.
+    throw Object.assign(new Error("Could not read your plants — try again."), { forUser: true });
   }
   const [plants, activities, sits, tasks] = rows;
   return { plants, activities, sits, tasks };

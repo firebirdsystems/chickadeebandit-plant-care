@@ -308,6 +308,13 @@ function activityStatus(activity) {
 }
 
 // ─── Actions ──────────────────────────────────────────────────────────────
+// A failed write shows this app's own wording when the error carries it
+// (`forUser`), otherwise one fixed line; the hub's error text goes to the console.
+function failText(e, line) {
+  if (!e?.forUser) console.error("[plant-care] write failed:", e);
+  return e?.forUser ? e.message : line;
+}
+
 async function markDone(activityId) {
   if (!ME) return;
   const id      = crypto.randomUUID();
@@ -339,7 +346,7 @@ async function markDone(activityId) {
     if (prevLog) lastLogs[activityId] = prevLog;
     else delete lastLogs[activityId];
     renderMain();
-    hubAlert(e?.message || "Could not save that.");
+    hubAlert(failText(e, "Couldn’t save that — try again."));
   }
 }
 
@@ -522,11 +529,11 @@ function renderSettingsModal() {
 
 window.doDelPlant   = async id => {
   try { if (await deletePlant(id)) { renderSettingsModal(); renderMain(); syncSits(); } }
-  catch (e) { hubAlert(e?.message || "Could not delete the plant."); }
+  catch (e) { hubAlert(failText(e, "Couldn’t delete the plant — try again.")); }
 };
 window.doDelAct     = async id => {
   try { if (await deleteActivity(id)) { renderSettingsModal(); renderMain(); syncSits(); } }
-  catch (e) { hubAlert(e?.message || "Could not delete the activity."); }
+  catch (e) { hubAlert(failText(e, "Couldn’t delete the activity — try again.")); }
 };
 window.openSettings = () => renderSettingsModal();
 
@@ -555,7 +562,7 @@ window.submitPlant = async id => {
     await savePlant({ name, type: document.getElementById("pf-type").value.trim(), emoji: document.getElementById("pf-emoji").value, location: document.getElementById("pf-loc").value.trim() }, id || null);
   } catch (e) {
     if (btn) { btn.disabled = false; btn.textContent = id ? "Save" : "Add Plant"; }
-    hubAlert(e?.message || "Could not save the plant.");
+    hubAlert(failText(e, "Couldn’t save the plant — try again."));
     return;
   }
   renderSettingsModal(); renderMain(); syncSits();
@@ -597,7 +604,7 @@ window.submitAct = async id => {
     await saveActivity({ name, icon: document.getElementById("af-icon").value, interval_days: days, lastDoneAt }, id || null);
   } catch (e) {
     if (btn) { btn.disabled = false; btn.textContent = id ? "Save" : "Add Activity"; }
-    hubAlert(e?.message || "Could not save the activity.");
+    hubAlert(failText(e, "Couldn’t save the activity — try again."));
     return;
   }
   await loadLastLogs().catch(() => {}); renderSettingsModal(); renderMain(); syncSits();
@@ -779,14 +786,14 @@ window.submitSit = async function(existingId) {
     // The sitter's page offers at most SIT_MAX_TASKS; 100 tasks is 9 statements,
     // well inside the batch ceiling, so this is the limit that binds.
     if (rows.length > SIT_MAX_TASKS) {
-      throw new Error(`A sit can have at most ${SIT_MAX_TASKS} tasks; this one would have ${rows.length}. Pick fewer plants.`);
+      throw Object.assign(new Error(`A sit can have at most ${SIT_MAX_TASKS} tasks; this one would have ${rows.length}. Pick fewer plants.`), { forUser: true });
     }
     statements.push(...sitTaskStatements(id, rows, () => crypto.randomUUID()));
     await dbBatch(statements);
     delete sitTooMany[id];
     await loadSits();
   } catch (e) {
-    errEl.textContent = e?.message || "Could not save the sit.";
+    errEl.textContent = failText(e, "Couldn’t save the sit — try again.");
     if (btn) { btn.disabled = false; btn.textContent = existingId ? "Save" : "Create sit"; }
     return;
   }
@@ -803,7 +810,7 @@ window.toggleSitArchived = async function(id) {
     if (archived) await loadSits();
     else await syncSits();
   } catch (e) {
-    hubAlert(e?.message || "Could not update the sit.");
+    hubAlert(failText(e, "Couldn’t update the sit — try again."));
   }
   renderSittersModal();
 };
@@ -821,7 +828,7 @@ window.doDeleteSit = async function(id) {
     await dbBatch([{ sql: "DELETE FROM app_plant_care__sits WHERE id = ?", params: [id] }]);
     await loadSits();
   } catch (e) {
-    hubAlert(e?.message || "Could not delete the sit.");
+    hubAlert(failText(e, "Couldn’t delete the sit — try again."));
   }
   renderSittersModal();
 };

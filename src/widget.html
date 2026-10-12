@@ -67,6 +67,7 @@
       align-items: center; justify-content: center;
       color: #9ca3af; font-size: 12px; gap: 6px;
     }
+    .load-error { margin: 8px; padding: 8px 10px; border-radius: 10px; background: var(--hub-tint-danger, #fee2e2); color: var(--hub-tint-danger-fg, #b91c1c); font-size: 0.8rem; }
   </style>
 </head>
 <body>
@@ -181,7 +182,7 @@ async function load() {
 }
 
 load().catch(() => {
-  document.body.innerHTML = `<div class="empty"><a href="/open/${APP_ID}" style="color:#111827;font-weight:600">Open Plant Care →</a></div>`;
+  document.body.innerHTML = `<div class="load-error" data-testid="load-error" role="alert">Couldn’t load the plants.</div><div class="empty"><a href="/open/${APP_ID}" style="color:#111827;font-weight:600">Open Plant Care →</a></div>`;
 });
 </script>
 </body>
