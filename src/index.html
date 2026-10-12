@@ -166,6 +166,8 @@
     .empty-sm { font-size: 0.85rem; color: var(--muted); padding: 8px 0; }
     .loading { text-align: center; padding: 40px; color: var(--muted); }
     .muted { color: var(--muted); }
+    .load-error { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; background: var(--hub-tint-danger, #fee2e2); color: var(--hub-tint-danger-fg, #b91c1c); font-size: 0.9rem; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+    .load-error-retry { background: none; border: 1px solid currentColor; border-radius: 8px; padding: 5px 10px; font: inherit; font-weight: 600; color: inherit; cursor: pointer; flex-shrink: 0; }
   </style>
   <base href="/run/plant-care/" />
 </head>
@@ -212,6 +214,7 @@ let plants         = [];
 let activities     = []; // all activities across all plants
 let lastLogs       = {};
 let selectedId     = null;
+let loadFailed     = false; // the first load failed and none has succeeded since
 let actFormPlantId = null; // plant context for the open activity form
 let refreshTimer   = null;
 let sits           = []; // sitter links' sits, newest first
@@ -251,7 +254,9 @@ shareView.bind(shareUi);
 async function db(sql, params = []) {
   if (!DB) return { rows: [] };
   const res = await fetch(DB, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sql, params }) });
-  return res.json();
+  const json = await res.json().catch(() => null);
+  if (!res.ok || !json || typeof json !== "object" || json.error) throw new Error(json?.error || "Couldn’t reach the hub. Try again.");
+  return json;
 }
 
 /** One atomic /api/db batch: every statement applies, or none does. */
@@ -262,8 +267,8 @@ async function dbBatch(statements) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ statements }),
   });
-  const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(body.error || "Could not save");
+  const body = await res.json().catch(() => null);
+  if (!res.ok || !body || typeof body !== "object" || body.error) throw new Error(body?.error || "Could not save");
   return body.results ?? [];
 }
 
@@ -273,7 +278,13 @@ async function initDb() {
 
 async function loadMembers() {
   if (!CONTEXT) { members = [{ id: "demo-1", name: "Alex", role: "adult" }, { id: "demo-2", name: "Jordan", role: "child" }]; return; }
-  try { const res = await fetch(`${CONTEXT}?keys=family.members`); members = ((await res.json())["family.members"]) ?? []; } catch { members = []; }
+  // A roster that could not be read is a failed load, not an empty household.
+  const res = await fetch(`${CONTEXT}?keys=family.members`);
+  const json = await res.json().catch(() => null);
+  if (!res.ok || !json || typeof json !== "object" || json.error) throw new Error("Couldn’t reach the hub. Try again.");
+  // A 200 can still name a key the hub failed to read: that is a failed load too.
+  if (Array.isArray(json.$errors) && json.$errors.includes("family.members")) throw new Error("Couldn’t reach the hub. Try again.");
+  members = json["family.members"] ?? [];
 }
 async function loadPlants() { const { rows } = await db(`SELECT * FROM app_plant_care__plants ORDER BY created_at`); plants = rows ?? []; }
 async function loadActivities() {
@@ -308,8 +319,8 @@ async function markDone(activityId) {
   renderMain();
 
   try {
-    // db() resolves with the hub's { error } on a refused write rather than
-    // throwing, so check it: the optimistic tick must come back off.
+    // A refused write throws (db() does it; the check below backs it up), so
+    // the optimistic tick comes back off in the catch.
     const res = await db(`INSERT INTO app_plant_care__logs (id, activity_id, plant_id, done_by, done_at) VALUES (?, ?, ?, ?, ?)`, [id, activityId, selectedId, ME.id, now]);
     if (res?.error) throw new Error(res.error);
     // Prune old logs in background — no effect on UI state. A sitter's ticks
@@ -323,11 +334,12 @@ async function markDone(activityId) {
       done_by: ME.id,
       done_at: now,
     });
-  } catch {
+  } catch (e) {
     // Revert on INSERT failure
     if (prevLog) lastLogs[activityId] = prevLog;
     else delete lastLogs[activityId];
     renderMain();
+    hubAlert(e?.message || "Could not save that.");
   }
 }
 
@@ -452,10 +464,12 @@ function renderMain() {
   const plant     = plants.find(p => p.id === selectedId);
   const meIsAdmin = isAdult(ME);
   const curActs   = activities.filter(a => a.plant_id === selectedId);
-  const tabsHtml  = plants.length > 1
+  const tabsHtml  = plants.length > 1 && !loadFailed
     ? `<div class="plant-tabs">${plants.map(p => `<button class="plant-tab ${p.id === selectedId ? "active" : ""}" data-plant-id="${esc(p.id)}" onclick="selectPlant(this.dataset.plantId)">${esc(p.emoji)} ${esc(p.name)}</button>`).join("")}</div>` : "";
   let body = "";
-  if (plants.length === 0) {
+  if (loadFailed) {
+    body = `<div class="load-error" data-testid="load-error" role="alert"><span>Couldn’t load your plants.</span> <button type="button" class="load-error-retry" data-testid="load-retry">Try again</button></div>`;
+  } else if (plants.length === 0) {
     body = meIsAdmin ? `<div class="empty">No plants yet. Tap ${glyph("gear")} to add your first plant.</div>` : `<div class="empty">No plants configured yet.</div>`;
   } else if (curActs.length === 0) {
     body = meIsAdmin ? `<div class="empty">No activities for ${esc(plant?.name ?? "this plant")}. Tap ${glyph("gear")} to add some.</div>` : `<div class="empty">No activities configured yet.</div>`;
@@ -465,7 +479,7 @@ function renderMain() {
   document.getElementById("root").innerHTML = `
     <header>
       <div><h1>${plant ? `${esc(plant.emoji)} ${esc(plant.name)}` : `${glyph("potted-plant")} Plant Care`}</h1><div class="sub">${plant?.type ? esc(plant.type) : "Care tracker"}${plant?.location ? ` · ${esc(plant.location)}` : ""}</div></div>
-      ${meIsAdmin ? `<div style="display:flex;gap:6px">
+      ${meIsAdmin && !loadFailed ? `<div style="display:flex;gap:6px">
         ${DB ? `<button class="btn btn-icon" onclick="openSitters()" title="Sitter links" aria-label="Sitter links" data-testid="open-sitters">${glyph("suitcase")}</button>` : ""}
         <button class="btn btn-icon" onclick="openSettings()" title="Settings" aria-label="Settings">${glyph("gear")}</button>
       </div>` : ""}
@@ -506,8 +520,14 @@ function renderSettingsModal() {
     <div style="margin-top:14px"><button class="btn btn-primary btn-sm" onclick="openPlantForm()">+ Add Plant</button></div>`);
 }
 
-window.doDelPlant   = async id => { if (await deletePlant(id)) { renderSettingsModal(); renderMain(); syncSits(); } };
-window.doDelAct     = async id => { if (await deleteActivity(id)) { renderSettingsModal(); renderMain(); syncSits(); } };
+window.doDelPlant   = async id => {
+  try { if (await deletePlant(id)) { renderSettingsModal(); renderMain(); syncSits(); } }
+  catch (e) { hubAlert(e?.message || "Could not delete the plant."); }
+};
+window.doDelAct     = async id => {
+  try { if (await deleteActivity(id)) { renderSettingsModal(); renderMain(); syncSits(); } }
+  catch (e) { hubAlert(e?.message || "Could not delete the activity."); }
+};
 window.openSettings = () => renderSettingsModal();
 
 // ─── Plant form ───────────────────────────────────────────────────────────
@@ -531,7 +551,13 @@ window.submitPlant = async id => {
   if (!name) { document.getElementById("pf-name").focus(); return; }
   const btn = modalEl?.querySelector('.modal-actions .btn-primary');
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
-  await savePlant({ name, type: document.getElementById("pf-type").value.trim(), emoji: document.getElementById("pf-emoji").value, location: document.getElementById("pf-loc").value.trim() }, id || null);
+  try {
+    await savePlant({ name, type: document.getElementById("pf-type").value.trim(), emoji: document.getElementById("pf-emoji").value, location: document.getElementById("pf-loc").value.trim() }, id || null);
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = id ? "Save" : "Add Plant"; }
+    hubAlert(e?.message || "Could not save the plant.");
+    return;
+  }
   renderSettingsModal(); renderMain(); syncSits();
 };
 
@@ -544,7 +570,8 @@ async function openActForm(id = null, plantId = null) {
   const ig  = ACT_ICONS.map(e => `<button type="button" class="emoji-btn ${sel === e ? "selected" : ""}" onclick="pickActIcon(this,'${e}')">${e}</button>`).join("");
   let lastDoneVal = "";
   if (a) {
-    const { rows } = await db(`SELECT done_at FROM app_plant_care__logs WHERE activity_id = ? ORDER BY done_at DESC LIMIT 1`, [id]);
+    // The form still opens when this read fails; "last done" just starts blank.
+    const { rows } = await db(`SELECT done_at FROM app_plant_care__logs WHERE activity_id = ? ORDER BY done_at DESC LIMIT 1`, [id]).catch(() => ({ rows: [] }));
     if (rows?.[0]?.done_at) lastDoneVal = isoToLocalDateInput(rows[0].done_at);
   }
   openModal(`
@@ -566,8 +593,14 @@ window.submitAct = async id => {
   // Only when the member changed it (see lastDoneToSave).
   const lastDoneEl = document.getElementById("af-lastdone");
   const lastDoneAt = lastDoneEl ? lastDoneToSave(lastDoneEl.value, lastDoneEl.dataset.initial) : null;
-  await saveActivity({ name, icon: document.getElementById("af-icon").value, interval_days: days, lastDoneAt }, id || null);
-  await loadLastLogs(); renderSettingsModal(); renderMain(); syncSits();
+  try {
+    await saveActivity({ name, icon: document.getElementById("af-icon").value, interval_days: days, lastDoneAt }, id || null);
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = id ? "Save" : "Add Activity"; }
+    hubAlert(e?.message || "Could not save the activity.");
+    return;
+  }
+  await loadLastLogs().catch(() => {}); renderSettingsModal(); renderMain(); syncSits();
 };
 
 window.backToSettings = renderSettingsModal;
@@ -871,16 +904,26 @@ function handleDeepLink() {
   if (plant) window.selectPlant(plantId);
 }
 
-(async () => {
-  await loadMembers();
-  if (DB) { await initDb(); await Promise.all([loadPlants(), loadActivities(), loadLastLogs()]); if (plants.length > 0) selectedId = plants[0].id; }
+async function firstLoad() {
+  if (DB) {
+    await initDb();
+    try { await Promise.all([loadMembers(), loadPlants(), loadActivities(), loadLastLogs()]); loadFailed = false; }
+    catch { loadFailed = true; }
+    if (plants.length > 0) selectedId = plants[0].id;
+  } else await loadMembers();
   renderMain();
+  if (loadFailed) return;
   handleDeepLink();
   // Keep open sits' checklists current with the plants' activities. Off the
   // first paint: nothing on the main view depends on it.
   syncSits();
+}
+document.addEventListener("click", (e) => {
+  if (e.target.closest('[data-testid="load-retry"]')) firstLoad();
+});
+firstLoad().then(() => {
   refreshTimer = setInterval(() => { if (!modalEl) renderMain(); }, 60_000);
-})();
+});
 </script>
 </body>
 </html>
