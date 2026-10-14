@@ -156,9 +156,6 @@
       "severity": "warn"
     }
   },
-  "resource_limits": {
-    "max_db_bytes": 52428800
-  },
   "icon": "🪴",
   "ai_access": {
     "allowed": true,
